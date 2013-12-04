@@ -8,7 +8,7 @@ DESCRIPTION OF FEATURES
 
 3) Rewards: Three physical rewards - treasure chest-like boxes that are locked. A phrase such as "5 miles" or "10 miles" is painted on each box. When the user travels the number of miles, she unlocks the box. 
 
-4) Login: User can use a pin pad to login and access the features of changing settings and tracking her own location. 
+4) Login: User can use a pin pad to login and access the feature of tracking her own location. 
 
 PAGES (see screenshots)
 
