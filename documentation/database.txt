@@ -1,0 +1,33 @@
+DESCRIPTION OF MySQL SCHEMAS
+
+Table: ctm_places
+Columns: 
+INT(AUTO_INCREMENT) id
+FLOAT latitude 
+FLOAT longitude 
+
+Table: ctm_users
+
+VARCHAR(50) name (UNIQUE) 
+SMALLINT pin
+
+Table: ctm_access_log
+VARCHAR(50) name
+TIMESTAMP date 
+VARCHAR(100) ip
+
+Table: ctm_tripideas
+INT(AUTO_INCREMENT) id
+VARCHAR(250) title (UNIQUE)
+VARCHAR(100) place
+VARCHAR(250) gmaps_url
+VARCHAR(250) image_url
+TEXT about
+
+Table: ctm_rewards
+VARCHAR(100) (UNIQUE) title
+SMALLINT miles_required
+VARCHAR(250) image_locked_url
+VARCHAR(250) image_unlocked_url
+
+

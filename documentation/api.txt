@@ -1,0 +1,31 @@
+DESCRIPTION OF API 
+
+url: /place/create
+type: POST
+params: latitude, longitude
+about: Add a geo-position to the database. 
+
+url: /place/show
+type: GET
+about: Show all geo-positions.
+
+url: /place/show/:id
+type: GET
+about: Show a specific geo-position. 
+
+url: /user/auth
+type: POST
+params: pin
+about: Authenticate the user. 
+
+url: /user/status
+type: GET
+about: Get info about the current user, including her map progress and login status. 
+
+url: /user/update_progress
+type: PUT
+about: Update the user's progress on the map (must be logged in to do this). 
+
+url: /tripidea/show
+type: GET
+params: List all trip ideas. 
