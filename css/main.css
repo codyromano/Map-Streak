@@ -29,7 +29,6 @@ the gridpak.js file to use '.page' as it's container.
     -moz-background-clip:padding-box !important;
     -webkit-background-clip:padding-box !important;
     background-clip:padding-box !important;
-    background: #777;
 	margin-bottom: 12px;
 }
 
@@ -230,7 +229,11 @@ the gridpak.js file to use '.page' as it's container.
 
 /************************ /Gridpak **************/ 
 
-/****************************** Primitive Reset **************************/ 
+/****************************** Global **************************/ 
+
+body{
+    font-family:Helvetica;
+}
 
 h1,h2,h3,h4,h5{
     margin-top:0%; 
@@ -239,12 +242,75 @@ h1,h2,h3,h4,h5{
     padding-bottom:0%;
 }
 
-/****************************** /Primitive Reset **************************/ 
+a{
+    text-decoration:none;
+}
+
+/****************************** /Global **************************/ 
+
+/* Header and Stick Man */ 
+
+#logo{
+    display:block;
+    height:100%;
+    width:auto;
+    /* Temporary */ 
+    position:relative;
+    top:1.5rem;
+    font-weight:bold;
+}
+
+#stick-man, #stick-man-dialogue{
+    height:150px;
+}
+
+#stick-man{
+    /* Temporary */ 
+    background:url(http://austinkleon.com/wp-content/uploads/2008/02/stick_figure.gif) no-repeat;
+    background-size:200% auto;
+    background-position:50% 0%;
+}
+
+#stick-man-dialogue{
+    font-weight:bold;
+    font-size:3.5rem;
+}
+
+/* Trip Ideas */ 
+.icon{
+    /* Temporary */ 
+    background-color:#ccc;
+    min-height:75px;
+}
+
+.icon1{
+    background:url(http://www.eventective.com/photo/597718.jpg) no-repeat;
+}
+.icon2{
+    background:url(http://www.aviewoncities.com/img/chicago/kveus9752s.jpg) no-repeat;
+    background-position:100% 50%;
+    background-size:200%;
+}
 
 /****************************** Structure & Basic Layout **************************/ 
 
 .header{
-    height:3rem;
+    height:75px;
+    border-bottom:solid #ccc .5rem;
+}
+
+.divider{
+    border-top:solid #ccc .5rem;
+}
+
+/* Titles that divide each section */ 
+
+section h2:first-child{
+    border-top:solid #ccc .5rem;
+    border-bottom:solid #ccc .5rem;
+    padding-top:.25rem;
+    padding-bottom:.25rem;
+    margin-top:1.5rem;
 }
 
 /****************************** /Structure & Basic Layout **************************/ 
