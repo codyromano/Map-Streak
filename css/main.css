@@ -287,6 +287,8 @@ p{
     position:relative;
     top:1.5rem;
     font-weight:bold;
+    background-size:192px 123px;
+    background-position:0px -37px;
 }
 
 #stick-man, #stick-man-dialogue{
