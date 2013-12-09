@@ -21,7 +21,10 @@ the gridpak.js file to use '.page' as it's container.
 */
 .page {
      margin: 0 auto;
-     max-width: 100%;
+     /* max-width: 100%; */ 
+
+     /* Temporary, until I can make layout for desktop. */ 
+     max-width:900px; 
      overflow:hidden;
      position:relative;
 }
@@ -281,7 +284,7 @@ p{
 
 #logo{
     display:block;
-    height:100%;
+    height:23px;
     width:auto;
     /* Temporary */ 
     position:relative;
@@ -295,11 +298,20 @@ p{
     height:150px;
 }
 
+
 #stick-man{
-    /* Temporary */ 
-    background:url(http://austinkleon.com/wp-content/uploads/2008/02/stick_figure.gif) no-repeat;
-    background-size:200% auto;
-    background-position:50% 0%;
+    width:85px;
+    background-size:409px 307px;
+}
+
+.stick-waiting{
+    background-position:-2px -150px;
+}
+.stick-streaking-1{
+    background-position:-87px -150px;
+}
+.stick-streaking-2{
+    background-position:-165px -150px;
 }
 
 #stick-man-dialogue{
