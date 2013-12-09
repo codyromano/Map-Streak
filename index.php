@@ -8,10 +8,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Custom fonts --> 
-    <link href='http://fonts.googleapis.com/css?family=Simonetta:400' rel='stylesheet' type='text/css'>
+    <link href="http://fonts.googleapis.com/css?family=Simonetta:400" rel="stylesheet" type="text/css">
 
     <!-- Simple responsive grid --> 
-    <link rel="stylesheet" href="css/main.css" type="text/css"> 
+    <link rel="stylesheet" href="css/main.css" type="text/css">
+
+    <!-- jQuery without all the blubber --> 
+    <script src="http://zeptojs.com/zepto.min.js" type="text/javascript"></script>
+
+    <script>
+    Zepto(function($){
+
+        var $ = function(el){
+            return document.getElementById(el); 
+        }
+
+        var StickMan = (function(){
+            var stickManEl = $("stick-man"); // DOM element
+
+            function start(){
+
+            }
+            function stop(){
+
+            }
+        })(); 
+
+    }); 
+    </script> 
 
 </head>
 <body>
@@ -25,7 +49,9 @@
     </header>
 
     <section class="row" id="streak-actions">
-        <div class="span_2 col" id="stick-man"></div>
+        <div class="span_2 col">
+            <div class="stick-waiting sprite" id="stick-man"></div> 
+        </div>
         <div class="span_4 col" id="stick-man-dialogue">
             Tap to Streak!
         </div>
@@ -69,7 +95,7 @@
         </div>
 
         <div class="row"> 
-            <div class="span_2 col icon icon2"> Place image </div>
+            <div class="span_2 col icon icon2"></div>
             <div class="span_4 col"> 
                 <h3> Chicago </h3>
                 <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. In at odio et nulla ultricies congue. 
