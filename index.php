@@ -5,10 +5,13 @@
 
     <meta charset='utf-8'> 
     <!-- For responsive design on mobile --> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Custom fonts --> 
+    <link href='http://fonts.googleapis.com/css?family=Simonetta:400' rel='stylesheet' type='text/css'>
 
     <!-- Simple responsive grid --> 
-    <link rel="stylesheet" href="css/main.css" type="text/css"/> 
+    <link rel="stylesheet" href="css/main.css" type="text/css"> 
 
 </head>
 <body>
@@ -16,15 +19,15 @@
 <div class="page">
 
     <header class="row">
-        <div class="header col">
-            <span id="logo">Map Streak Logo</span>
+        <div class="header col sprite logo-bg">
+            <span class="sprite" id="logo"></span>
         </div>
     </header>
 
     <section class="row" id="streak-actions">
         <div class="span_2 col" id="stick-man"></div>
         <div class="span_4 col" id="stick-man-dialogue">
-            Tap to Streak
+            Tap to Streak!
         </div>
     </section>
 
@@ -82,9 +85,11 @@
     <div class="span_6 col divider"></div>
 
     <footer class="row">
-        <a href="#" class="span_2 col"> Credits </a>
-        <a href="#" class="span_2 col"> Backstory </a>
-        <a href="#" class="span_2 col"> Feedback </a>
+        <div class="span_6 col sprite logo-bg">
+            <a href="#" class="span_2 col"> Credits </a>
+            <a href="#" class="span_2 col"> Backstory </a>
+            <a href="#" class="span_2 col"> Feedback </a>
+        </div>
     </div>
 </div>
 

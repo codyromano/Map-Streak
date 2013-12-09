@@ -1,3 +1,10 @@
+/* 
+Color scheme: https://www.dropbox.com/s/af2zs0n0hycdnma/Screenshot%202013-12-07%2020.00.23.png
+
+*/ 
+
+
+
 /************************ Gridpak (http://gridpak.com) **************/ 
 
 body,
@@ -14,7 +21,7 @@ the gridpak.js file to use '.page' as it's container.
 */
 .page {
      margin: 0 auto;
-     max-width: 95%;
+     max-width: 100%;
      overflow:hidden;
      position:relative;
 }
@@ -242,11 +249,33 @@ h1,h2,h3,h4,h5{
     padding-bottom:0%;
 }
 
+h1,h2,h3,h4,h5,#stick-man-dialogue{
+    font-family: 'Simonetta', cursive;
+    font-weight:400;
+}
+
 a{
     text-decoration:none;
 }
 
+p{
+    line-height:1.5rem;
+}
+
 /****************************** /Global **************************/ 
+
+/****************************** Sprites **************************/ 
+
+/****************************** /Sprites **************************/ 
+
+.sprite{
+    background-image:url(../images/sprite.png);
+    background-repeat:no-repeat; 
+    background-size:512px 384px;
+}
+.logo-bg{
+    background-position:0px 0px;
+}
 
 /* Header and Stick Man */ 
 
@@ -296,21 +325,23 @@ a{
 
 .header{
     height:75px;
-    border-bottom:solid #ccc .5rem;
+    border-bottom:solid #64AAD0 .5rem;
 }
 
 .divider{
-    border-top:solid #ccc .5rem;
+    border-top:solid #64AAD0 .5rem;
 }
 
 /* Titles that divide each section */ 
 
 section h2:first-child{
-    border-top:solid #ccc .5rem;
-    border-bottom:solid #ccc .5rem;
+    background:#086CA2;
+    border-top:solid #64AAD0 .5rem;
+    border-bottom:solid #64AAD0 .5rem;
     padding-top:.25rem;
     padding-bottom:.25rem;
     margin-top:1.5rem;
+    color:#fff;
 }
 
 /****************************** /Structure & Basic Layout **************************/ 
