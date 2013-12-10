@@ -14,28 +14,9 @@
     <link rel="stylesheet" href="css/main.css" type="text/css">
 
     <!-- jQuery without all the blubber --> 
-    <script src="http://zeptojs.com/zepto.min.js" type="text/javascript"></script>
+    <script src="js/zepto.min.js" type="text/javascript"></script>
 
-    <script>
-    Zepto(function($){
-
-        var $ = function(el){
-            return document.getElementById(el); 
-        }
-
-        var StickMan = (function(){
-            var stickManEl = $("stick-man"); // DOM element
-
-            function start(){
-
-            }
-            function stop(){
-
-            }
-        })(); 
-
-    }); 
-    </script> 
+    <script src="js/index.js" type="text/javascript"></script>
 
 </head>
 <body>
@@ -43,7 +24,7 @@
 <div class="page">
 
     <header class="row">
-        <div class="header col sprite logo-bg">
+        <div class="header col logo-bg">
             <span class="sprite" id="logo"></span>
         </div>
     </header>
@@ -63,18 +44,13 @@
         </div>
 
         <div class="row">
-            <label class="span_4 col"> Miles Traveled </label>
-            <span class="span_2 col"> 203 </span>
-        </div>
-
-        <div class="row">
-            <label class="span_4 col"> Longest Streak [?] </label>
+            <label class="span_4 col"> Longest Single Streak <span class="sprite info"></span></label>
             <span class="span_2 col"> 0 Miles </span>
         </div>
 
         <div class="row">
-            <label class="span_4 col"> World Ranking [?] </label>
-            <span class="span_2 col"> #5 </span>
+            <label class="span_4 col"> Total Miles Streaked <span class="sprite info"></span></label>
+            <span class="span_2 col"> 203 </span>
         </div>
 
     </section>
