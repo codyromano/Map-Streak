@@ -317,6 +317,13 @@ p{
     font-size:3.5rem;
 }
 
+#stick-man-dialogue.streaking{
+    font-size:2.5rem;
+}
+#stick-man-dialogue.fs-small{
+    font-size:120%; 
+}
+
 /****************************** Place photos and misc. icons **************************/ 
 
 .info{

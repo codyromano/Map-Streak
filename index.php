@@ -50,7 +50,7 @@
 
         <div class="row">
             <label class="span_4 col"> Total Miles Streaked <span class="sprite info"></span></label>
-            <span class="span_2 col"> 203 </span>
+            <span class="span_2 col"> 0 </span>
         </div>
 
     </section>
