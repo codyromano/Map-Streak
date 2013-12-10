@@ -3,8 +3,6 @@ Color scheme: https://www.dropbox.com/s/af2zs0n0hycdnma/Screenshot%202013-12-07%
 
 */ 
 
-
-
 /************************ Gridpak (http://gridpak.com) **************/ 
 
 body,
@@ -21,10 +19,7 @@ the gridpak.js file to use '.page' as it's container.
 */
 .page {
      margin: 0 auto;
-     /* max-width: 100%; */ 
-
-     /* Temporary, until I can make layout for desktop. */ 
-     max-width:900px; 
+     max-width: 95%; 
      overflow:hidden;
      position:relative;
 }
@@ -253,7 +248,7 @@ h1,h2,h3,h4,h5{
 }
 
 h1,h2,h3,h4,h5,#stick-man-dialogue{
-    font-family: 'Simonetta', cursive;
+    font-family: 'Simonetta', Arial;
     font-weight:400;
 }
 
@@ -285,7 +280,7 @@ p{
 #logo{
     display:block;
     height:23px;
-    width:auto;
+    width:150px;
     /* Temporary */ 
     position:relative;
     top:1.5rem;
@@ -298,6 +293,9 @@ p{
     height:150px;
 }
 
+#streak-actions{
+    cursor:pointer; 
+}
 
 #stick-man{
     width:85px;
@@ -319,6 +317,16 @@ p{
     font-size:3.5rem;
 }
 
+/****************************** Place photos and misc. icons **************************/ 
+
+.info{
+    display:block;
+    float:right;
+    width:25px;
+    height:25px;
+    background-size:172px 103px;
+    background-position:-145px -28px;
+}
 /* Trip Ideas */ 
 .icon{
     /* Temporary */ 
@@ -339,6 +347,7 @@ p{
 
 .header{
     height:75px;
+    background:#086CA2;
     border-bottom:solid #64AAD0 .5rem;
 }
 
