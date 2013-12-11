@@ -19,7 +19,7 @@ the gridpak.js file to use '.page' as it's container.
 */
 .page {
      margin: 0 auto;
-     max-width: 95%; 
+     max-width: 95%;
      overflow:hidden;
      position:relative;
 }
@@ -88,7 +88,9 @@ the gridpak.js file to use '.page' as it's container.
     Span 6: 1000%
     
     ----------------------------------------------------------------------------- */
+     /* Temporary: until I configure responsive layout for desktop */ 
 
+     
     @media screen and (min-width: 320px) and (max-width: 919px) {
         
         .col {
@@ -162,7 +164,8 @@ the gridpak.js file to use '.page' as it's container.
     Span 12: 100%
     
     ----------------------------------------------------------------------------- */
-
+     /* Temporary: until I configure responsive layout for desktop */ 
+     /*
     @media screen and (min-width: 920px) {
         
         .row {
@@ -172,16 +175,6 @@ the gridpak.js file to use '.page' as it's container.
             border-left-width:12px;
         	padding:0 12px;
         }
-        
-        
-        /*
-        Add your semantic classnames in alongside their corresponding spans here. e.g.
-        
-        .span_3,
-        .my_semantic_class_name {
-            ...
-        }
-        */
         
         .span_1 {
             width:8.33333333333%;
@@ -231,6 +224,7 @@ the gridpak.js file to use '.page' as it's container.
             margin-left:0;
         }
     }
+    */
 
 /************************ /Gridpak **************/ 
 

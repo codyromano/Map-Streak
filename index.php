@@ -44,13 +44,18 @@
         </div>
 
         <div class="row">
+            <label class="span_4 col"> Total Check-ins </label>
+            <span class="span_2 col" id="checkins"> 0 </span>
+        </div>
+
+        <div class="row">
             <label class="span_4 col"> Longest Single Streak <span class="sprite info"></span></label>
-            <span class="span_2 col"> 0 Miles </span>
+            <span class="span_2 col" id="max_single_streak"> 0 Miles </span>
         </div>
 
         <div class="row">
             <label class="span_4 col"> Total Miles Streaked <span class="sprite info"></span></label>
-            <span class="span_2 col"> 0 </span>
+            <span class="span_2 col" id="total_streak"> 0 </span>
         </div>
 
     </section>

@@ -32,27 +32,56 @@ Zepto(function($){
         }
     });
 
+
+
+    /************************** Abstraction for Local Storage ***********************/ 
+
     var Storage = function(){
-        var app_prefix = 'MapStreakPlayer';
 
-        function isPossible(){
+        var appKey = 'mapStreakSession';
+
+        function isPossible() {
             return ('localStorage' in window); 
-        };
-
-        function save(key, value){
-            localStorage[app_prefix+'.'+key] = value; 
         }
 
-        function get(key){
-            return localStorage[app_prefix+'.'+key] || undefined; 
+        function getKey(subKey) {
+            return appKey + '.' + subKey; 
+        }
+
+        function save(subKey, object) {
+            if (typeof object !== 'object') return false; 
+            localStorage.setItem(getKey(subKey), JSON.stringify(object)); 
+        }
+
+        function arrayPush(subKey, element) {
+            var array = get(subKey); 
+
+            if (typeof array === 'undefined') { // array doesn't exist yet
+                save(subKey, []); 
+                array = get(subKey); 
+            }
+            array.push(element); 
+            save(subKey, array); 
+        }
+
+        function get(subKey) {
+            var key = getKey(subKey); 
+            return (key in localStorage) ? JSON.parse(localStorage[key]) : undefined; 
+        }
+
+        if (!isPossible()) {
+            return false; 
         }
 
         return {
             isPossible: isPossible,
+            arrayPush: arrayPush,
             save: save, 
             get: get
-        }; 
-    }(); 
+        };
+    }();
+
+    /************************** Handles geolocation functions ***********************/ 
 
     var Checkin = function(){
 
@@ -70,13 +99,11 @@ Zepto(function($){
         function handleLoc(pos){
             loc.status = loc.AVAILABLE; 
 
-            /*
             Storage.arrayPush('checkins', {
                 lat: pos.coords.latitude, 
                 lon: pos.coords.longitude,
                 date: new Date()
             });
-            */
 
             /** 
             * @todo Add real logic to this. 
@@ -84,33 +111,10 @@ Zepto(function($){
             var firstCheckin = true; 
 
             if (firstCheckin) {
-                startCountdown(); 
+                //startCountdown(); 
             } else {
                 Notices.add("You travel-streaked x miles!");
             }  
-        }
-
-        function startCountdown(){
-
-            /** 
-            * @todo Add real logic to this. 
-            */ 
-            var lastCheckin = new Date().addHours(-1),
-            diff; 
-
-            var interval = setInterval(function(){
-                diff = countdownLimit - (new Date().getTime() - lastCheckin.getTime());
-
-                if (diff >= 0) {
-                    // set back to default screen 
-                    clearInterval(interval); 
-                    return; 
-                }  
-                
-                //Notices.show(diff); 
-                Notices.show("You are now travel-streaking! You have 90 minutes to check-in from a new location.");
-
-            }, 1000); 
         }
 
         function locError(error){
@@ -136,13 +140,13 @@ Zepto(function($){
                 break;
             } 
 
-            Player.notice(notice); 
+            Notices.add(notice); 
         }
 
         function geolocate(){
             loc.status = loc.WAITING; 
 
-            Player.notice("Finding your location..."); 
+            Notices.add("Finding your location..."); 
             navigator.geolocation.getCurrentPosition(handleLoc, locError); 
 
             var reminder = setTimeout(function(){
@@ -153,8 +157,7 @@ Zepto(function($){
         }
 
         return {
-            geolocate: geolocate,
-            startCountdown: startCountdown
+            geolocate: geolocate
         }
     }(); 
 
@@ -213,6 +216,29 @@ Zepto(function($){
             setTimeout(process, processInterval); 
         }
 
+        /*
+        function startCountdown(){
+            // todo Add real logic to this. 
+
+            var lastCheckin = new Date().addHours(-1),
+            diff; 
+
+            var interval = setInterval(function(){
+                diff = countdownLimit - (new Date().getTime() - lastCheckin.getTime());
+
+                if (diff >= 0) {
+                    // set back to default screen 
+                    clearInterval(interval); 
+                    return; 
+                }  
+                
+                //Notices.show(diff); 
+                Notices.show("You are now travel-streaking! You have 90 minutes to check-in from a new location.");
+
+            }, 1000); 
+        }
+        */ 
+
         return {
             add: add,
             show: show // this should only be used for the countdown
@@ -221,14 +247,25 @@ Zepto(function($){
 
     var Player = function(){
     
-        var display = $("#stick-man-dialogue");
+        var display = $("#stick-man-dialogue"), 
+        stats = {
+            checkins: 0, // total checkins
+            max_single_streak: 0, // longest single streak
+            total_streak: 0 // total miles streaked
+        }; 
 
-        function notice(text) {
-            Notices.add(text); 
+        function getStats(){
+            /* Get geolocation-related stats */ 
+            var geo = Storage.get('checkins'); 
+            if (typeof geo == 'object') {
+                stats.checkins = geo.length; 
+            }
+
+            return stats; 
         }
 
         function warnOldDevice() {
-            notice("Your device is too old to handle this app, but if it makes you feel better, you don't look a day over 25."); 
+            Notices.add("Your device is too old to handle this app, but if it makes you feel better, you don't look a day over 25."); 
         }
 
         function startStreak() {
@@ -238,10 +275,11 @@ Zepto(function($){
             }
             StickMan.start(); 
             Checkin.geolocate(); 
+            Game.updateViews(); 
         }
 
         function stopStreak(){
-            notice('Tap to Streak!'); 
+            Notices.add('Tap to Streak!'); 
             display.removeClass('streaking'); 
         }
 
@@ -250,7 +288,7 @@ Zepto(function($){
         }
 
         return {
-            notice: notice,
+            getStats: getStats,
             isStreaking: isStreaking, 
             startStreak: startStreak
         }
@@ -285,6 +323,24 @@ Zepto(function($){
             isStreaking: isStreaking,
             start: start, 
             stop: stop
+        };
+    }(); 
+
+
+    var Game = function(){
+
+        function updateViews() {
+            var stats = Player.getStats(); 
+            for (var key in stats) {
+                // @todo Need validation here
+                $('#'+key).text( stats[key] ); 
+            }
+        }
+
+        updateViews(); 
+
+        return {
+            updateViews: updateViews
         };
     }(); 
 
