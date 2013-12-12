@@ -1,47 +1,49 @@
-Date.prototype.addHours= function(h){
-    this.setHours(this.getHours()+h);
-    return this;
-}
-
-Zepto(function($){
-
-    /************************** Universal Interface Elements ***********************/ 
-
+new Zepto(function ($) {
+    "use strict";
+    
+    Date.prototype.addHours = function (h) {
+        this.setHours(this.getHours() + h);
+    };
+    
+    /************************** Universal Interface Elements***********************/ 
+    
     // Wrapper containing stick man and streaking status text
-    var streakActions = $("#streak-actions");
-
+    var streakActions = $("#streak-actions"),
+        
     /************************** Global Utilities ***********************/    
 
-    /* Cycle through a series of functions, calling them individually at a fixed time interval. */ 
+    /*Cycle through a series of functions, calling them individually at a fixed time interval. */ 
 
-    var cycleFns = function(fns, interval) {
+    cycleFns = function (fns, interval) {
         var i = 0, l = fns.length; 
-        return setInterval(function(){
+        return window.setInterval(function () {
             fns[i](); 
-            i = (i + 1 < l) ? ++i : 0; 
+            if (i + 1 < l) {
+                i += 1; 
+            } else {
+                i = 0; 
+            } 
         }, interval); 
-    }
+    };
 
     /************************** Streaking Actions Section ***********************/ 
 
-    streakActions.on('click',function(){
+    streakActions.on('click', function () {
         if (Player.isStreaking()) {
-            // stop streaking
+            console.log('stop streaking'); 
         } else {
             Player.startStreak(); 
         }
     });
 
-
-
     /************************** Abstraction for Local Storage ***********************/ 
 
-    var Storage = function(){
+    var Storage = (function () {
 
         var appKey = 'mapStreakSession';
 
         function isPossible() {
-            return ('localStorage' in window); 
+            return (window.hasOwnProperty('localStorage')); 
         }
 
         function getKey(subKey) {
@@ -79,20 +81,22 @@ Zepto(function($){
             save: save, 
             get: get
         };
-    }();
+    })();
 
     /************************** Handles geolocation functions ***********************/ 
 
     var Checkin = function(){
 
         var loc = {
-            status: this.NOT_REQUESTED,
             AVAILABLE: 1, 
             DENIED: 2,
             UNAVAILABLE: 3, 
             WAITING: 4,
-            NOT_REQUESTED: 5
+            NOT_REQUESTED: 5,
+            status: null
         };
+        
+        loc.status = loc.NOT_REQUESTED; // default
 
         var countdownLimit = 324000; // seconds in 90 minutes
 
@@ -105,16 +109,15 @@ Zepto(function($){
                 date: new Date()
             });
 
-            /** 
-            * @todo Add real logic to this. 
-            */ 
-            var firstCheckin = true; 
+            //var firstCheckin = (Player.getStats().checkins === 1); 
 
-            if (firstCheckin) {
-                //startCountdown(); 
+            if (Player.hasActiveStreak()) {
+                Notices.add("You map-streaked x miles since your last check-in!");
             } else {
-                Notices.add("You travel-streaked x miles!");
+                Notices.add("You are now map-streaking. You have x minutes to travel somewhere new."); 
             }  
+
+            Game.updateViews(); 
         }
 
         function locError(error){
@@ -245,7 +248,7 @@ Zepto(function($){
         };
     }(); 
 
-    var Player = function(){
+    var Player = function (){
     
         var display = $("#stick-man-dialogue"), 
         stats = {
@@ -254,7 +257,16 @@ Zepto(function($){
             total_streak: 0 // total miles streaked
         }; 
 
-        function getStats(){
+        function hasActiveStreak (){
+            if (stats.checkins === 0) return false; 
+            
+            // Get last checkin
+            var checkins = Storage.get('checkins');
+            console.log(checkins[0]); 
+            return false; 
+        }
+
+        function getStats (){
             /* Get geolocation-related stats */ 
             var geo = Storage.get('checkins'); 
             if (typeof geo == 'object') {
@@ -264,11 +276,11 @@ Zepto(function($){
             return stats; 
         }
 
-        function warnOldDevice() {
+        function warnOldDevice () {
             Notices.add("Your device is too old to handle this app, but if it makes you feel better, you don't look a day over 25."); 
         }
 
-        function startStreak() {
+        function startStreak () {
             if (!'geolocation' in navigator || !Storage.isPossible()) {
                 warnOldDevice(); 
                 return false; 
@@ -289,13 +301,14 @@ Zepto(function($){
 
         return {
             getStats: getStats,
+            hasActiveStreak: hasActiveStreak,
             isStreaking: isStreaking, 
             startStreak: startStreak
         }
 
     }(); 
 
-    var StickMan = function(){
+    var StickMan = function (){
 
         var stickManEl = $("#stick-man"), 
         animationInt; // animation interval
@@ -344,4 +357,4 @@ Zepto(function($){
         };
     }(); 
 
-}); 
+});
