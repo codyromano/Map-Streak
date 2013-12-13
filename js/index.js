@@ -1,40 +1,102 @@
+/************************** Global Utilities ***********************/  
+
+/*Cycle through a series of functions, calling them individually at a fixed time interval. */ 
+
+var cycleFns = function (fns, interval) {
+    var i = 0, l = fns.length; 
+    return window.setInterval(function () {
+        fns[i](); 
+        if (i + 1 < l) {
+            i += 1; 
+        } else {
+            i = 0; 
+        } 
+    }, interval); 
+};
+
+/* Basic prototype extensions / polyfills for older browsers */ 
+
+if (!'forEach' in window) {
+    Array.prototype.forEach = function(func) {
+        for (var i = 0, l = this.length; i<l; i++) {
+            func(this[i]); 
+        }
+    }; 
+}
+
+if (!'map' in window) {
+   Array.prototype.map = function(func) {
+       var result = []; 
+       this.forEach(function(el){
+           result.push(func(el)); 
+       }); 
+       return result; 
+   }; 
+}
+
+Array.prototype.compare = function(func) {
+    for (var i = 0, l = this.length; i<l; i++) {
+        if (this.hasOwnProperty(i + 1)) {
+            func(this[i], this[i+1]); 
+        } else {
+            func(this[i], 0); 
+        }
+    }
+}; 
+
+Array.prototype.reduce = function(callback, opt_initialValue){
+    'use strict';
+    if (null === this || 'undefined' === typeof this) {
+      // At the moment all modern browsers, that support strict mode, have
+      // native implementation of Array.prototype.reduce. For instance, IE8
+      // does not support strict mode, so this check is actually useless.
+      throw new TypeError(
+          'Array.prototype.reduce called on null or undefined');
+    }
+    if ('function' !== typeof callback) {
+      throw new TypeError(callback + ' is not a function');
+    }
+    var index, value,
+        length = this.length >>> 0,
+        isValueSet = false;
+    if (1 < arguments.length) {
+      value = opt_initialValue;
+      isValueSet = true;
+    }
+    for (index = 0; length > index; ++index) {
+      if (this.hasOwnProperty(index)) {
+        if (isValueSet) {
+          value = callback(value, this[index], index, this);
+        }
+        else {
+          value = this[index];
+          isValueSet = true;
+        }
+      }
+    }
+    if (!isValueSet) {
+      throw new TypeError('Reduce of empty array with no initial value');
+    }
+    return value;
+  };
+
+Array.prototype.last = function () {
+    return this[this.length - 1];
+};
+    
+Date.prototype.addHours = function (h) {
+    this.setHours(this.getHours() + h);
+};
+
+
+
 new Zepto(function ($) {
     "use strict";
-    
-    Date.prototype.addHours = function (h) {
-        this.setHours(this.getHours() + h);
-    };
     
     /************************** Universal Interface Elements***********************/ 
     
     // Wrapper containing stick man and streaking status text
-    var streakActions = $("#streak-actions"),
-        
-    /************************** Global Utilities ***********************/    
-
-    /*Cycle through a series of functions, calling them individually at a fixed time interval. */ 
-
-    cycleFns = function (fns, interval) {
-        var i = 0, l = fns.length; 
-        return window.setInterval(function () {
-            fns[i](); 
-            if (i + 1 < l) {
-                i += 1; 
-            } else {
-                i = 0; 
-            } 
-        }, interval); 
-    };
-
-    /************************** Streaking Actions Section ***********************/ 
-
-    streakActions.on('click', function () {
-        if (Player.isStreaking()) {
-            console.log('stop streaking'); 
-        } else {
-            Player.startStreak(); 
-        }
-    });
+    var streakActions = $("#streak-actions");
 
     /************************** Abstraction for Local Storage ***********************/ 
 
@@ -82,10 +144,46 @@ new Zepto(function ($) {
             get: get
         };
     })();
+    
+    /************************** Specific streaking logic ***********************/ 
+    
+    var Streak = (function(){
+        
+        function getDist( coords1, coords2) {
+            // @todo: replace this with Haversine formula
+            return coords1.lat + coords2.lat; 
+        }
+    
+        function getTotalDist(){
+            
+            var miles = 0;
+            Storage.get('checkins').compare(function(a, b){
+                if (b.hasOwnProperty('lat') && b.hasOwnProperty('lon')) {
+                    miles+= getDist(a, b); 
+                } else {
+                }
+            }); 
+            
+            return miles; 
+        }
+        
+        function isActive(){
+            var checkins = Storage.get('checkins'), 
+            recent = new Date( checkins[checkins.length - 2].date), // date of second-to-last checkin
+            secondsAgo = (new Date().getTime() - recent.getTime()) / 1000; 
+            
+            return (secondsAgo <= Checkin.countdownLimit);
+        }
+        
+        return {
+            getTotalDist: getTotalDist,
+            isActive: isActive
+        };
+    })(); 
 
     /************************** Handles geolocation functions ***********************/ 
 
-    var Checkin = function(){
+    var Checkin = (function(){
 
         var loc = {
             AVAILABLE: 1, 
@@ -111,7 +209,7 @@ new Zepto(function ($) {
 
             //var firstCheckin = (Player.getStats().checkins === 1); 
 
-            if (Player.hasActiveStreak()) {
+            if (Streak.isActive()) {
                 Notices.add("You map-streaked x miles since your last check-in!");
             } else {
                 Notices.add("You are now map-streaking. You have x minutes to travel somewhere new."); 
@@ -160,9 +258,10 @@ new Zepto(function ($) {
         }
 
         return {
+            countdownLimit: countdownLimit,
             geolocate: geolocate
         }
-    }(); 
+    })(); 
 
 
     var Notices = function(){
@@ -257,22 +356,13 @@ new Zepto(function ($) {
             total_streak: 0 // total miles streaked
         }; 
 
-        function hasActiveStreak (){
-            if (stats.checkins === 0) return false; 
-            
-            // Get last checkin
-            var checkins = Storage.get('checkins');
-            console.log(checkins[0]); 
-            return false; 
-        }
-
         function getStats (){
             /* Get geolocation-related stats */ 
             var geo = Storage.get('checkins'); 
             if (typeof geo == 'object') {
                 stats.checkins = geo.length; 
+                stats.total_streak = Streak.getTotalDist();
             }
-
             return stats; 
         }
 
@@ -301,7 +391,6 @@ new Zepto(function ($) {
 
         return {
             getStats: getStats,
-            hasActiveStreak: hasActiveStreak,
             isStreaking: isStreaking, 
             startStreak: startStreak
         }
@@ -340,6 +429,8 @@ new Zepto(function ($) {
     }(); 
 
 
+    /************************** Universal tasks such as updating views for all objects ***********************/ 
+    
     var Game = function(){
 
         function updateViews() {
@@ -356,5 +447,15 @@ new Zepto(function ($) {
             updateViews: updateViews
         };
     }(); 
+    
+    /************************** Streaking Actions Section ***********************/ 
+
+    streakActions.on('click', function () {
+        if (Player.isStreaking()) {
+            console.log('stop streaking'); 
+        } else {
+            Player.startStreak(); 
+        }
+    });
 
 });
