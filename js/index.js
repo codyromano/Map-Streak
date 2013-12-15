@@ -14,89 +14,59 @@ var cycleFns = function (fns, interval) {
     }, interval); 
 };
 
-/* Basic prototype extensions / polyfills for older browsers */ 
+/* Haversine formula for calculating distance between two lat/lon pairs. */ 
 
-if (!'forEach' in window) {
-    Array.prototype.forEach = function(func) {
-        for (var i = 0, l = this.length; i<l; i++) {
-            func(this[i]); 
-        }
-    }; 
+var haversine = function(coords1, coords2) {
+
+    var lat1 = coords1[0], 
+    lon1 = coords1[1],
+    lat2 = coords2[0], 
+    lon2 = coords2[1],
+
+    R = 6371, // km 
+
+    x1 = lat2-lat1,
+    dLat = x1.toRad(),  
+    x2 = lon2-lon1,
+    dLon = x2.toRad(),  
+    a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)), 
+    d = R * c; 
+
+    return d; 
 }
 
-if (!'map' in window) {
-   Array.prototype.map = function(func) {
-       var result = []; 
-       this.forEach(function(el){
-           result.push(func(el)); 
-       }); 
-       return result; 
-   }; 
-}
+// Format a number for display
+Number.prototype.readable = function(){
 
-Array.prototype.compare = function(func) {
-    for (var i = 0, l = this.length; i<l; i++) {
-        if (this.hasOwnProperty(i + 1)) {
-            func(this[i], this[i+1]); 
-        } else {
-            func(this[i], 0); 
-        }
-    }
-}; 
+    return this.toFixed(2);
+};
 
-Array.prototype.reduce = function(callback, opt_initialValue){
-    'use strict';
-    if (null === this || 'undefined' === typeof this) {
-      // At the moment all modern browsers, that support strict mode, have
-      // native implementation of Array.prototype.reduce. For instance, IE8
-      // does not support strict mode, so this check is actually useless.
-      throw new TypeError(
-          'Array.prototype.reduce called on null or undefined');
-    }
-    if ('function' !== typeof callback) {
-      throw new TypeError(callback + ' is not a function');
-    }
-    var index, value,
-        length = this.length >>> 0,
-        isValueSet = false;
-    if (1 < arguments.length) {
-      value = opt_initialValue;
-      isValueSet = true;
-    }
-    for (index = 0; length > index; ++index) {
-      if (this.hasOwnProperty(index)) {
-        if (isValueSet) {
-          value = callback(value, this[index], index, this);
-        }
-        else {
-          value = this[index];
-          isValueSet = true;
-        }
-      }
-    }
-    if (!isValueSet) {
-      throw new TypeError('Reduce of empty array with no initial value');
-    }
-    return value;
-  };
+Number.prototype.toRad = function() {
+   return this * Math.PI / 180;
+};
 
 Array.prototype.last = function () {
-    return this[this.length - 1];
+    return this[this.length - 1] || false; 
 };
     
 Date.prototype.addHours = function (h) {
     this.setHours(this.getHours() + h);
 };
 
-
-
 new Zepto(function ($) {
     "use strict";
     
-    /************************** Universal Interface Elements***********************/ 
+    /************************** Universal Interface Elements ***********************/ 
     
     // Wrapper containing stick man and streaking status text
-    var streakActions = $("#streak-actions");
+    var streakActions = $("#streak-actions"),
+
+    // Where important game messages are displayed
+    display = $("#stick-man-dialogue"); 
 
     /************************** Abstraction for Local Storage ***********************/ 
 
@@ -105,7 +75,14 @@ new Zepto(function ($) {
         var appKey = 'mapStreakSession';
 
         function isPossible() {
-            return (window.hasOwnProperty('localStorage')); 
+            if (!window.hasOwnProperty('localStorage'))
+                return false; 
+
+            save('test',{}); 
+            if (typeof get('test') !== 'object')
+                return false; 
+
+            return true; 
         }
 
         function getKey(subKey) {
@@ -148,29 +125,36 @@ new Zepto(function ($) {
     /************************** Specific streaking logic ***********************/ 
     
     var Streak = (function(){
-        
-        function getDist( coords1, coords2) {
-            // @todo: replace this with Haversine formula
-            return coords1.lat + coords2.lat; 
-        }
-    
+
         function getTotalDist(){
+            var dist = Storage.get('checkins').reduce(function(totalMiles, thisCheckIn, index, allCheckIns){
+                var nextCheckIn = allCheckIns[index + 1] || false;
+
+                // If there's no next check-in, there's no distance to calculate.
+                if (typeof nextCheckIn !== 'object')
+                    return 0;  
+
+                // To be considered part of streak, a check-in must occur soon after previous one.
+                if (Checkin.secondsDiff(nextCheckIn, thisCheckIn) > Checkin.countdownlimit)
+                    return 0; 
+
+                // Return the total miles recorded plus the distance between two check-ins.
+                return totalMiles + Checkin.distance(thisCheckIn, nextCheckIn);
+            }, 0);
             
-            var miles = 0;
-            Storage.get('checkins').compare(function(a, b){
-                if (b.hasOwnProperty('lat') && b.hasOwnProperty('lon')) {
-                    miles+= getDist(a, b); 
-                } else {
-                }
-            }); 
-            
-            return miles; 
+            return dist; 
         }
         
         function isActive(){
-            var checkins = Storage.get('checkins'), 
-            recent = new Date( checkins[checkins.length - 2].date), // date of second-to-last checkin
-            secondsAgo = (new Date().getTime() - recent.getTime()) / 1000; 
+            var checkins = Storage.get('checkins');
+
+            // If there's nothing to compare, streak can't be active
+            if (checkins.length <= 1) return false; 
+
+            // Get seconds between now and the second-to-last checkin
+            var recent = checkins[checkins.length - 1],
+            recentDate = new Date( checkins[checkins.length - 2].date),
+            secondsAgo = (new Date().getTime() - recentDate.getTime()) / 1000; 
             
             return (secondsAgo <= Checkin.countdownLimit);
         }
@@ -196,20 +180,58 @@ new Zepto(function ($) {
         
         loc.status = loc.NOT_REQUESTED; // default
 
-        var countdownLimit = 324000; // seconds in 90 minutes
+        var countdownLimit = 324000, // seconds in 90 minutes
+        travelMin = .25; // minimum distance users must travel before checking in
+
+        function secondsDiff(checkin1, checkin2) {
+            var result = new Date(checkin1.date).getTime() - new Date(checkin2.date).getTime(); 
+            return result; 
+        }
+
+        function distance(checkin1, checkin2) {
+            var coords1 = [checkin1.lat, checkin1.lon], 
+            coords2 = [checkin2.lat, checkin2.lon];
+            return haversine(coords1, coords2);
+            //return haversine(coords1, coords2);  
+        }
 
         function handleLoc(pos){
-            loc.status = loc.AVAILABLE; 
 
+            /** 
+            * @todo: Reorganize this function 
+            */ 
+
+            loc.status = loc.AVAILABLE;
+
+            /*
             Storage.arrayPush('checkins', {
                 lat: pos.coords.latitude, 
                 lon: pos.coords.longitude,
                 date: new Date()
             });
-
-            //var firstCheckin = (Player.getStats().checkins === 1); 
+            */
 
             if (Streak.isActive()) {
+
+                // Get the distance between this check-in & last one.
+                var distance = Checkin.distance({
+                    lat: pos.coords.latitude, 
+                    lon: pos.coords.longitude
+                }, Storage.get('checkins').last());
+
+                if (distance < travelMin) {
+                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.");
+                    return false; 
+                }
+
+                /*
+                Storage.arrayPush('checkins', {
+                lat: pos.coords.latitude, 
+                lon: pos.coords.longitude,
+                date: new Date()
+                });
+                */
+
                 Notices.add("You map-streaked x miles since your last check-in!");
             } else {
                 Notices.add("You are now map-streaking. You have x minutes to travel somewhere new."); 
@@ -258,6 +280,9 @@ new Zepto(function ($) {
         }
 
         return {
+            travelMin: travelMin,
+            distance: distance,
+            secondsDiff: secondsDiff,
             countdownLimit: countdownLimit,
             geolocate: geolocate
         }
@@ -270,8 +295,7 @@ new Zepto(function ($) {
         after they're added. To prevent this, I'm creating a queue and mandating
         that each notice be displayed for a minimum # of seconds */ 
 
-        var display = $("#stick-man-dialogue"),
-        noticeAge = 0,
+        var noticeAge = 0,
         noticeMinAge = 1500, // must be in increments of 250 
         processing = false, // if queue is being processing
         processInterval = 250,
@@ -317,29 +341,6 @@ new Zepto(function ($) {
 
             setTimeout(process, processInterval); 
         }
-
-        /*
-        function startCountdown(){
-            // todo Add real logic to this. 
-
-            var lastCheckin = new Date().addHours(-1),
-            diff; 
-
-            var interval = setInterval(function(){
-                diff = countdownLimit - (new Date().getTime() - lastCheckin.getTime());
-
-                if (diff >= 0) {
-                    // set back to default screen 
-                    clearInterval(interval); 
-                    return; 
-                }  
-                
-                //Notices.show(diff); 
-                Notices.show("You are now travel-streaking! You have 90 minutes to check-in from a new location.");
-
-            }, 1000); 
-        }
-        */ 
 
         return {
             add: add,
