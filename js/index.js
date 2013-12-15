@@ -1,4 +1,4 @@
-/************************** Global Utilities ***********************/  
+/************************** Global Utilities ***********************/ 
 
 /*Cycle through a series of functions, calling them individually at a fixed time interval. */ 
 
@@ -30,8 +30,8 @@ var haversine = function(coords1, coords2) {
     x2 = lon2-lon1,
     dLon = x2.toRad(),  
     a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-                    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
+    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
 
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)), 
     d = R * c; 
@@ -41,12 +41,30 @@ var haversine = function(coords1, coords2) {
 
 // Format a number for display
 Number.prototype.readable = function(){
-
     return this.toFixed(2);
 };
 
 Number.prototype.toRad = function() {
    return this * Math.PI / 180;
+};
+
+function hasProps(obj) {
+    var argsLen = arguments.length; 
+    if (typeof obj !== 'object') return false; 
+    if (argsLen <= 1) return false; 
+
+    for (var i = 1, l = argsLen; i < l; i++)
+        if (!obj.hasOwnProperty(arguments[i])) return false; 
+
+    return true; 
+}
+
+
+Object.prototype.hasProps = function() {
+    var hasAllProps = true;  
+    arguments.forEach(function(prop){
+        hasAllProps = (this.hasOwnProperty)
+    }.bind(this));
 };
 
 Array.prototype.last = function () {
@@ -75,14 +93,7 @@ new Zepto(function ($) {
         var appKey = 'mapStreakSession';
 
         function isPossible() {
-            if (!window.hasOwnProperty('localStorage'))
-                return false; 
-
-            save('test',{}); 
-            if (typeof get('test') !== 'object')
-                return false; 
-
-            return true; 
+            return (window.hasOwnProperty('localStorage'));
         }
 
         function getKey(subKey) {
@@ -122,7 +133,7 @@ new Zepto(function ($) {
         };
     })();
     
-    /************************** Specific streaking logic ***********************/ 
+    /************************** Streaking-specific logic ***********************/ 
     
     var Streak = (function(){
 
@@ -220,7 +231,8 @@ new Zepto(function ($) {
                 }, Storage.get('checkins').last());
 
                 if (distance < travelMin) {
-                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.");
+                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.", 5000);
+                    Notices.add("Tap to Check In!", 3000); 
                     return false; 
                 }
 
@@ -274,7 +286,7 @@ new Zepto(function ($) {
 
             var reminder = setTimeout(function(){
                 if (loc.status === loc.WAITING) {
-                    Player.notice("Still waiting for you to share location..."); 
+                    Notices.add("Still waiting for you to share location..."); 
                 }
             }, 4000); 
         }
@@ -289,64 +301,80 @@ new Zepto(function ($) {
     })(); 
 
 
-    var Notices = function(){
 
-        /* It looks bad when notices are overwritten just milliseconds 
-        after they're added. To prevent this, I'm creating a queue and mandating
-        that each notice be displayed for a minimum # of seconds */ 
+    var Notices = (function(){
 
-        var noticeAge = 0,
-        noticeMinAge = 1500, // must be in increments of 250 
-        processing = false, // if queue is being processing
-        processInterval = 250,
-        queue = []; 
+        var current, 
+        queue = [], 
+        interval,
+        processInterval = 100; 
 
-        function add(message) {
-            queue.push(message);
-            if (!processing) {
-                process(); 
-                processing = true; 
-            } 
+        function add(text, expires) { 
+            queue.push({
+                text: text, 
+                age: 0,
+                expires: expires || 1500, 
+                isExpired: function(){
+                    return this.age > this.expires
+                }
+            }); 
+
+            if (!isProcessing()) {
+                startProcessing(); 
+            }
         }
 
-        function show(text){
-            // Make room by shrinking long strings of text
-            if (text.length > 10) {
+        function displayQueueItem(notice) {
+            current = notice; 
+            queue = queue.slice(1); 
+            if (current.text.length > 15) {
                 display.addClass('fs-small'); 
             } else {
                 display.removeClass('fs-small'); 
             }
-            display.text(text); 
+            display.text(current.text); 
         }
 
-        function process() {
-            noticeAge+= processInterval; 
-            var l = queue.length; 
+        function clearDisplay() {
+            current = null; 
+        }
 
-            // Nothing to see here.d
-            if (l === 0) {
-                processing = false; 
-                return;
+        function processQueue() {
 
-            // If there's only one message, show it immediately.
-            } else if (l === 1) {
-                show(queue[0]);  
-                queue = queue.slice(1);
+            // if there is an object in current, increase its age
+            if (current && current.hasOwnProperty('age')) { 
+                current.age+= processInterval;
+            } else if (queue.length > 0) {
+                displayQueueItem(queue[0]); // if nothing is in current and there's a queue, show the first object
+            } 
 
-            // If there's a waiting line, check the age of the current message.
-            } else if (l > 1 && noticeAge >= noticeMinAge) {
-                queue = queue.slice(1); 
-                show(queue[0]); 
+            // if the object in current has expired, remove it 
+            if (current && current.isExpired()) clearDisplay(); 
+
+            if (queue.length === 0 && typeof current === 'null') {
+                pauseProcessing();       
             }
-
-            setTimeout(process, processInterval); 
         }
+
+        function isProcessing() {
+            return (typeof interval === 'number');
+        }
+
+        function startProcessing() {
+            interval = setInterval(processQueue, processInterval);    
+        }
+
+        function pauseProcessing() {
+            clearInterval(interval); 
+            interval = null; 
+        }
+
+        startProcessing();
 
         return {
-            add: add,
-            show: show // this should only be used for the countdown
+            add: add
         };
-    }(); 
+    })();
 
     var Player = function (){
     
@@ -434,6 +462,17 @@ new Zepto(function ($) {
     
     var Game = function(){
 
+        /*
+        var states = {
+            'OBSERVING' : 1, 
+            'TRYING_CHECKIN': 2, 
+            'CHECKIN_SUCCESS': 3, 
+            'CHECKIN_FAILURE': 4, 
+
+        },
+        state = 'observing'; // default state
+        */
+
         function updateViews() {
             var stats = Player.getStats(); 
             for (var key in stats) {
@@ -442,9 +481,33 @@ new Zepto(function ($) {
             }
         }
 
+        function getState() {
+            return {
+                current: state, 
+                states: states
+            };
+        }
+
+        /*
+        function changeState(state) {
+            switch (status.toLowerCase()) {
+                case states.OBSERVING: 
+                break;
+                case states.TRYING_CHECKIN: 
+                break;
+                case states.CHECKIN_SUCCESS:
+                break;
+                case states.CHECKIN_FAILURE: 
+                break;
+            }
+        }
+        */
+
         updateViews(); 
 
         return {
+            //getState: getState,
+            //changeState: changeState,
             updateViews: updateViews
         };
     }(); 
@@ -458,5 +521,11 @@ new Zepto(function ($) {
             Player.startStreak(); 
         }
     });
+
+        /************************** Initialization ***********************/ 
+
+    (function() {
+        Notices.add("Tap to Streak!", 0); 
+    })();
 
 });
