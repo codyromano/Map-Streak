@@ -59,14 +59,6 @@ function hasProps(obj) {
     return true; 
 }
 
-
-Object.prototype.hasProps = function() {
-    var hasAllProps = true;  
-    arguments.forEach(function(prop){
-        hasAllProps = (this.hasOwnProperty)
-    }.bind(this));
-};
-
 Array.prototype.last = function () {
     return this[this.length - 1] || false; 
 };
@@ -160,7 +152,7 @@ new Zepto(function ($) {
             var checkins = Storage.get('checkins');
 
             // If there's nothing to compare, streak can't be active
-            if (checkins.length <= 1) return false; 
+            if (typeof checkins === 'undefined' || checkins.length <= 1) return false; 
 
             // Get seconds between now and the second-to-last checkin
             var recent = checkins[checkins.length - 1],
