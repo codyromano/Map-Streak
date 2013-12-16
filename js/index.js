@@ -147,19 +147,23 @@ new Zepto(function ($) {
             
             return dist; 
         }
-        
-        function isActive(){
+
+        function secondsSinceLastCheckin() {
             var checkins = Storage.get('checkins');
 
-            // If there's nothing to compare, streak can't be active
-            if (typeof checkins === 'undefined' || checkins.length <= 1) return false; 
+            // If it's the initial check-in, there's nothing to compare 
+            if (typeof checkins === 'undefined' || checkins.length === 0) return undefined; 
 
-            // Get seconds between now and the second-to-last checkin
-            var recent = checkins[checkins.length - 1],
-            recentDate = new Date( checkins[checkins.length - 2].date),
-            secondsAgo = (new Date().getTime() - recentDate.getTime()) / 1000; 
-            
-            return (secondsAgo <= Checkin.countdownLimit);
+            var lastCheckIn = new Date( checkins.last().date),
+            secondsAgo = (new Date().getTime() - lastCheckIn.getTime()) / 1000; 
+
+            return secondsAgo; 
+        }
+        
+        function isActive(){
+            var secondsAgo = secondsSinceLastCheckin(); 
+            if (typeof secondsAgo === 'undefined') return false; 
+            else return (secondsAgo <= Checkin.countdownLimit);
         }
         
         return {
@@ -183,7 +187,7 @@ new Zepto(function ($) {
         
         loc.status = loc.NOT_REQUESTED; // default
 
-        var countdownLimit = 324000, // seconds in 90 minutes
+        var countdownLimit = 5400, // seconds in 90 minutes
         travelMin = .25; // minimum distance users must travel before checking in
 
         function secondsDiff(checkin1, checkin2) {
@@ -198,21 +202,18 @@ new Zepto(function ($) {
             //return haversine(coords1, coords2);  
         }
 
-        function handleLoc(pos){
-
-            /** 
-            * @todo: Reorganize this function 
-            */ 
-
-            loc.status = loc.AVAILABLE;
-
-            /*
+        // Create a new check-in
+        function create(lat, lon) {
             Storage.arrayPush('checkins', {
-                lat: pos.coords.latitude, 
-                lon: pos.coords.longitude,
+                lat: lat, 
+                lon: lon,
                 date: new Date()
             });
-            */
+        }
+
+        function handleLoc(pos){
+
+            loc.status = loc.AVAILABLE;
 
             if (Streak.isActive()) {
 
@@ -222,23 +223,22 @@ new Zepto(function ($) {
                     lon: pos.coords.longitude
                 }, Storage.get('checkins').last());
 
+                // Make sure user has traveled far enough
+ 
                 if (distance < travelMin) {
-                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.", 5000);
+                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in. You went "+distance+".", 5000);
                     Notices.add("Tap to Check In!", 3000); 
                     return false; 
                 }
 
-                /*
-                Storage.arrayPush('checkins', {
-                lat: pos.coords.latitude, 
-                lon: pos.coords.longitude,
-                date: new Date()
-                });
-                */
+                // Create a record of the check-in
+                create(pos.coords.latitude, pos.coords.longitude); 
+                Notices.add("You map-streaked "+distance.readable()+" miles since your last check-in!", 4000);
+                Notices.add("Tap to Check In!");
 
-                Notices.add("You map-streaked x miles since your last check-in!");
             } else {
-                Notices.add("You are now map-streaking. You have x minutes to travel somewhere new."); 
+                create(pos.coords.latitude, pos.coords.longitude); 
+                Notices.add("You are now map-streaking. You have " + Math.round(countdownLimit / 60) + " minutes to travel somewhere new."); 
             }  
 
             Game.updateViews(); 
