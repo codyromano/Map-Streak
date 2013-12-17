@@ -11,6 +11,10 @@ div {
      margin: 0;
      padding:0;
  }
+
+ .align-center{
+    text-align:center;
+ }
  
 /*
 Page is our center aligned 95% width container. We have set it's 'position' as relative
@@ -241,7 +245,7 @@ h1,h2,h3,h4,h5{
     padding-bottom:0%;
 }
 
-h1,h2,h3,h4,h5,#stick-man-dialogue{
+h1,h2,h3,h4,h5,#stick-man-dialogue, #timer{
     font-family: 'Simonetta', Arial;
     font-weight:400;
 }
@@ -308,14 +312,29 @@ p{
 
 #stick-man-dialogue{
     font-weight:bold;
-    font-size:3.5rem;
+    font-size:3.3rem;
+}
+
+#stick-man-dialogue.fs-medium{
+    font-size:2.5rem;
 }
 
 #stick-man-dialogue.streaking{
     font-size:2.5rem;
 }
 #stick-man-dialogue.fs-small{
-    font-size:120%; 
+    font-size:150%; 
+}
+
+#timer{
+    font-size:125%;
+    padding-right:0.5rem;
+    color:#fff;
+    display:none;
+    letter-spacing:0.15rem;
+    text-align:justify;
+    width:4rem;
+    float:right;
 }
 
 /****************************** Place photos and misc. icons **************************/ 

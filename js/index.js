@@ -1,20 +1,22 @@
 /************************** Global Utilities ***********************/ 
 
-/*Cycle through a series of functions, calling them individually at a fixed time interval. */ 
+/*Cycle through a series of functions, calling each at a fixed time interval. */ 
 
 var cycleFns = function (fns, interval) {
     var i = 0, l = fns.length; 
     return window.setInterval(function () {
         fns[i](); 
-        if (i + 1 < l) {
-            i += 1; 
-        } else {
-            i = 0; 
-        } 
+        i = (i + 1 < l) ? ++i : 0; 
     }, interval); 
 };
 
-/* Haversine formula for calculating distance between two lat/lon pairs. */ 
+/* Haversine formula for calculating distance between two lat/lon pairs. Adapted from: 
+http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
+*/ 
+
+Number.prototype.toRad = function() {
+   return this * Math.PI / 180;
+};
 
 var haversine = function(coords1, coords2) {
 
@@ -22,9 +24,7 @@ var haversine = function(coords1, coords2) {
     lon1 = coords1[1],
     lat2 = coords2[0], 
     lon2 = coords2[1],
-
     R = 6371, // km 
-
     x1 = lat2-lat1,
     dLat = x1.toRad(),  
     x2 = lon2-lon1,
@@ -42,10 +42,6 @@ var haversine = function(coords1, coords2) {
 // Format a number for display
 Number.prototype.readable = function(){
     return this.toFixed(2);
-};
-
-Number.prototype.toRad = function() {
-   return this * Math.PI / 180;
 };
 
 function hasProps(obj) {
@@ -76,7 +72,9 @@ new Zepto(function ($) {
     var streakActions = $("#streak-actions"),
 
     // Where important game messages are displayed
-    display = $("#stick-man-dialogue"); 
+    display = $("#stick-man-dialogue"),
+
+    countdownDisplay = $("#timer"); 
 
     /************************** Abstraction for Local Storage ***********************/ 
 
@@ -129,23 +127,46 @@ new Zepto(function ($) {
     
     var Streak = (function(){
 
-        function getTotalDist(){
+        function getDist(){
+
+            // For efficiency, we will calculate the longest single streak while calculating the total streaking distance
+            var singleIndex = 0, 
+            singleRecord = 0; 
+
             var dist = Storage.get('checkins').reduce(function(totalMiles, thisCheckIn, index, allCheckIns){
                 var nextCheckIn = allCheckIns[index + 1] || false;
 
                 // If there's no next check-in, there's no distance to calculate.
                 if (typeof nextCheckIn !== 'object')
-                    return 0;  
+                    return totalMiles + 0;  
 
-                // To be considered part of streak, a check-in must occur soon after previous one.
-                if (Checkin.secondsDiff(nextCheckIn, thisCheckIn) > Checkin.countdownlimit)
-                    return 0; 
+                // To be considered part of streak, a check-in must occur soon after the previous one.
+                if (Checkin.secondsDiff(nextCheckIn, thisCheckIn) > Checkin.countdownlimit) {
 
-                // Return the total miles recorded plus the distance between two check-ins.
-                return totalMiles + Checkin.distance(thisCheckIn, nextCheckIn);
+                    // Too much time passed between check-ins; we have to break the streak. But if the single streak
+                    // that we're keeping track of is greater than the previously recorded one, let's make this one the reigning champ.
+                    if (singleIndex > singleRecord)
+                        singleRecord = singleIndex; 
+
+                    singleIndex = 0; 
+
+                    // The check-ins are spaced out too much to be considered part of a streak
+                    return totalMiles + 0; 
+                }
+
+                var distance = Checkin.distance(thisCheckIn, nextCheckIn);
+                singleIndex+= distance; 
+
+                // Return the total miles recorded plus the distance between the two check-ins currently being processed
+               return totalMiles + Checkin.distance(thisCheckIn, nextCheckIn); 
             }, 0);
-            
-            return dist; 
+
+            if (singleIndex > singleRecord) singleRecord = singleIndex; 
+
+            return {
+                total_streak: dist, 
+                max_single_streak: singleRecord
+            };
         }
 
         function secondsSinceLastCheckin() {
@@ -167,7 +188,8 @@ new Zepto(function ($) {
         }
         
         return {
-            getTotalDist: getTotalDist,
+            secondsSinceLastCheckin: secondsSinceLastCheckin,
+            getDist: getDist,
             isActive: isActive
         };
     })(); 
@@ -195,11 +217,11 @@ new Zepto(function ($) {
             return result; 
         }
 
+
         function distance(checkin1, checkin2) {
             var coords1 = [checkin1.lat, checkin1.lon], 
             coords2 = [checkin2.lat, checkin2.lon];
             return haversine(coords1, coords2);
-            //return haversine(coords1, coords2);  
         }
 
         // Create a new check-in
@@ -217,6 +239,8 @@ new Zepto(function ($) {
 
             if (Streak.isActive()) {
 
+                Notices.startCountdown(); 
+
                 // Get the distance between this check-in & last one.
                 var distance = Checkin.distance({
                     lat: pos.coords.latitude, 
@@ -226,7 +250,7 @@ new Zepto(function ($) {
                 // Make sure user has traveled far enough
  
                 if (distance < travelMin) {
-                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in. You went "+distance+".", 5000);
+                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.", 5000);
                     Notices.add("Tap to Check In!", 3000); 
                     return false; 
                 }
@@ -239,6 +263,7 @@ new Zepto(function ($) {
             } else {
                 create(pos.coords.latitude, pos.coords.longitude); 
                 Notices.add("You are now map-streaking. You have " + Math.round(countdownLimit / 60) + " minutes to travel somewhere new."); 
+                Notices.startCountdown(); 
             }  
 
             Game.updateViews(); 
@@ -299,7 +324,47 @@ new Zepto(function ($) {
         var current, 
         queue = [], 
         interval,
-        processInterval = 100; 
+        processInterval = 100,
+        countdown = $("<div></div>").addClass("countdown"),
+        countdownInterval;  
+
+        function startCountdown() {
+            countdownDisplay.css("display","block");
+            countdownInterval = setInterval(updateCountdown, 1000); 
+        } 
+
+        function stopCountdown() {
+            StickMan.stop(); 
+            countdownDisplay.css("display","none"); 
+            clearInterval(countdownInterval); 
+        }
+
+        function updateCountdown() {
+            /**
+            * @todo Refactor this whole function. It works, but it's very confusing to read. 
+            */ 
+            // Time since last check-in
+            var secs, mins, hours; 
+
+            secs = Math.floor(Checkin.countdownLimit - Streak.secondsSinceLastCheckin());
+
+            if (secs <= 0) {
+                stopCountdown(); 
+                return false; 
+            }
+
+            if (secs > 0) {
+                mins = secs / 60;
+                secs = Math.floor((mins - Math.floor(mins)) * 60);
+                mins = Math.floor(mins);  
+            } else {
+                secs = 0; 
+            }
+
+            if (secs < 10) secs = '0' + secs; 
+            if (mins < 10) mins = '0' + mins; 
+            countdownDisplay.text(mins+':'+secs); 
+        }
 
         function add(text, expires) { 
             queue.push({
@@ -319,11 +384,15 @@ new Zepto(function ($) {
         function displayQueueItem(notice) {
             current = notice; 
             queue = queue.slice(1); 
-            if (current.text.length > 15) {
+
+            display.removeClass('fs-medium').removeClass('fs-small'); // reset display
+
+            if (current.text.length > 15 && current.text.length < 25) {
+                display.addClass('fs-medium'); 
+            } else if (current.text.length >= 25) {
                 display.addClass('fs-small'); 
-            } else {
-                display.removeClass('fs-small'); 
             }
+
             display.text(current.text); 
         }
 
@@ -364,6 +433,7 @@ new Zepto(function ($) {
         startProcessing();
 
         return {
+            startCountdown: startCountdown,
             add: add
         };
     })();
@@ -381,8 +451,11 @@ new Zepto(function ($) {
             /* Get geolocation-related stats */ 
             var geo = Storage.get('checkins'); 
             if (typeof geo == 'object') {
+
+                var distances = Streak.getDist();
                 stats.checkins = geo.length; 
-                stats.total_streak = Streak.getTotalDist();
+                stats.total_streak = distances.total_streak.toFixed(1);
+                stats.max_single_streak = distances.max_single_streak.toFixed(1); 
             }
             return stats; 
         }
@@ -435,11 +508,11 @@ new Zepto(function ($) {
         function start(){
             if (!isStreaking()) {
                 streak1(); 
-                animationInt = cycleFns([streak1, streak2], 1500); 
+                animationInt = cycleFns([streak1, streak2], 2500); 
             }
         }
         function stop(){
-            //clearInterval(animationInt); 
+            clearInterval(animationInt); 
         }
 
         return {
@@ -453,17 +526,6 @@ new Zepto(function ($) {
     /************************** Universal tasks such as updating views for all objects ***********************/ 
     
     var Game = function(){
-
-        /*
-        var states = {
-            'OBSERVING' : 1, 
-            'TRYING_CHECKIN': 2, 
-            'CHECKIN_SUCCESS': 3, 
-            'CHECKIN_FAILURE': 4, 
-
-        },
-        state = 'observing'; // default state
-        */
 
         function updateViews() {
             var stats = Player.getStats(); 
@@ -480,26 +542,9 @@ new Zepto(function ($) {
             };
         }
 
-        /*
-        function changeState(state) {
-            switch (status.toLowerCase()) {
-                case states.OBSERVING: 
-                break;
-                case states.TRYING_CHECKIN: 
-                break;
-                case states.CHECKIN_SUCCESS:
-                break;
-                case states.CHECKIN_FAILURE: 
-                break;
-            }
-        }
-        */
-
         updateViews(); 
 
         return {
-            //getState: getState,
-            //changeState: changeState,
             updateViews: updateViews
         };
     }(); 
@@ -517,7 +562,13 @@ new Zepto(function ($) {
         /************************** Initialization ***********************/ 
 
     (function() {
-        Notices.add("Tap to Streak!", 0); 
+        if (Streak.isActive()) {
+            Notices.add("Tap to check-in and keep your travel streak going.", 0); 
+            Notices.startCountdown(); 
+            StickMan.start(); 
+        } else {
+            Notices.add("Tap to Streak!", 0);
+        } 
     })();
 
 });
