@@ -98,7 +98,7 @@ new Zepto(function ($) {
         function arrayPush(subKey, element) {
             var array = get(subKey); 
 
-            if (typeof array === 'undefined') { // array doesn't exist yet
+            if (typeof array === 'undefined') { // create array if it doesn't exist
                 save(subKey, []); 
                 array = get(subKey); 
             }
@@ -115,6 +115,8 @@ new Zepto(function ($) {
             return false; 
         }
 
+        // Public API 
+        
         return {
             isPossible: isPossible,
             arrayPush: arrayPush,
@@ -239,8 +241,6 @@ new Zepto(function ($) {
 
             if (Streak.isActive()) {
 
-                Notices.startCountdown(); 
-
                 // Get the distance between this check-in & last one.
                 var distance = Checkin.distance({
                     lat: pos.coords.latitude, 
@@ -262,10 +262,11 @@ new Zepto(function ($) {
 
             } else {
                 create(pos.coords.latitude, pos.coords.longitude); 
-                Notices.add("You are now map-streaking. You have " + Math.round(countdownLimit / 60) + " minutes to travel somewhere new."); 
-                Notices.startCountdown(); 
+                Notices.add("You are now map-streaking. You have " + Math.round(countdownLimit / 60) + " minutes to travel somewhere new.", 5000);
+                Notices.add("Tap to Check-in!"); 
             }  
 
+            Notices.startCountdown(); 
             Game.updateViews(); 
         }
 
@@ -275,7 +276,7 @@ new Zepto(function ($) {
             switch (error.code) {
                 case error.PERMISSION_DENIED: 
                     loc.status = loc.DENIED; 
-                    notice = "You refused to share your location. Streaking can't work without it. :(";
+                    notice = "You refused to share your location or your phone's GPS is turned off.";
                 break;
                 case error.POSITION_UNAVAILABLE:
                     loc.status = loc.UNAVAILABLE; 
@@ -303,7 +304,7 @@ new Zepto(function ($) {
 
             var reminder = setTimeout(function(){
                 if (loc.status === loc.WAITING) {
-                    Notices.add("Still waiting for you to share location..."); 
+                    Notices.add("Please agree to share your location."); 
                 }
             }, 4000); 
         }
@@ -349,7 +350,9 @@ new Zepto(function ($) {
             secs = Math.floor(Checkin.countdownLimit - Streak.secondsSinceLastCheckin());
 
             if (secs <= 0) {
-                stopCountdown(); 
+                stopCountdown();
+                Notices.add("Your streak ended!", 4000); 
+                Notices.add("Tap to Streak!");  
                 return false; 
             }
 
@@ -512,6 +515,7 @@ new Zepto(function ($) {
             }
         }
         function stop(){
+            stickManEl.removeClass('stick-streaking-1').removeClass('stick-streaking-2'); 
             clearInterval(animationInt); 
         }
 
@@ -522,7 +526,6 @@ new Zepto(function ($) {
         };
     }(); 
 
-
     /************************** Universal tasks such as updating views for all objects ***********************/ 
     
     var Game = function(){
@@ -530,16 +533,10 @@ new Zepto(function ($) {
         function updateViews() {
             var stats = Player.getStats(); 
             for (var key in stats) {
-                // @todo Need validation here
-                $('#'+key).text( stats[key] ); 
+                if (typeof $('#'+key) === 'object') {
+                    $('#'+key).text( stats[key] ); 
+                }
             }
-        }
-
-        function getState() {
-            return {
-                current: state, 
-                states: states
-            };
         }
 
         updateViews(); 
