@@ -15,6 +15,10 @@ div {
  .align-center{
     text-align:center;
  }
+
+ a{
+    color:#086CA2;
+ }
  
 /*
 Page is our center aligned 95% width container. We have set it's 'position' as relative
@@ -245,9 +249,13 @@ h1,h2,h3,h4,h5{
     padding-bottom:0%;
 }
 
-h1,h2,h3,h4,h5,#stick-man-dialogue, #timer{
+h1,h2,h3,h4,h5,#stick-man-dialogue, #timer, footer{
     font-family: 'Simonetta', Arial;
     font-weight:400;
+}
+
+h4{
+    margin-top:0.5rem;
 }
 
 a{
@@ -271,6 +279,13 @@ p{
 }
 .logo-bg{
     background-position:0px 0px;
+}
+
+/* Footer */ 
+
+footer a{
+    color:#fff;
+    font-size:1.25rem;
 }
 
 /* Header and Stick Man */ 
@@ -339,6 +354,7 @@ p{
 
 /****************************** Place photos and misc. icons **************************/ 
 
+
 .info{
     display:block;
     float:right;
@@ -351,16 +367,18 @@ p{
 .icon{
     /* Temporary */ 
     background-color:#ccc;
-    min-height:75px;
+    min-height:100px;
 }
 
 .icon1{
-    background:url(http://www.eventective.com/photo/597718.jpg) no-repeat;
+    height:7rem;
+    background:url(../images/thumb/stowe_resort.jpg) no-repeat;
+    background-size:auto 100%;
 }
 .icon2{
-    background:url(http://www.aviewoncities.com/img/chicago/kveus9752s.jpg) no-repeat;
-    background-position:100% 50%;
-    background-size:200%;
+    height:7rem;
+    background:url(../images/thumb/lost_river.jpg) no-repeat;
+    background-size:auto 100%;
 }
 
 /****************************** Structure & Basic Layout **************************/ 
@@ -377,7 +395,7 @@ p{
 
 /* Titles that divide each section */ 
 
-section h2:first-child{
+section h2:first-child, footer div.row{
     background:#086CA2;
     border-top:solid #64AAD0 .5rem;
     border-bottom:solid #64AAD0 .5rem;
