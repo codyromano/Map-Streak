@@ -1,4 +1,4 @@
-/************************** Global Utilities ***********************/ 
+/************************** Abstract Functional Methods ***********************/ 
 
 /*Cycle through a series of functions, calling each at a fixed time interval. */ 
 
@@ -9,6 +9,47 @@ var cycleFns = function (fns, interval) {
         i = (i + 1 < l) ? ++i : 0; 
     }, interval); 
 };
+
+/* Subject each element in an array to a user-specified test function, which returns 
+true or false. Elements remain in the array if they pass the test. */ 
+
+Array.prototype.filter = function(test) {
+    var result = []; 
+    this.forEach(function(element, index, array) {
+        // If element is not first, compare it to previous element.
+        if (array[index-1] && test(array[index-1], element) || !array[index-1]) {
+            result.push(element); 
+        }
+    }); 
+    return result; 
+};
+
+// Check to see if an object has multiple given properties
+function hasProps(obj) {
+    var argsLen = arguments.length; 
+    if (typeof obj !== 'object') return false; 
+    if (argsLen <= 1) return false; 
+
+    for (var i = 1, l = argsLen; i < l; i++)
+        if (!obj.hasOwnProperty(arguments[i])) return false; 
+
+    return true; 
+}
+
+Array.prototype.last = function () {
+    return this[this.length - 1] || false; 
+};
+
+// Format a number for display
+Number.prototype.readable = function() {
+    return this.toFixed(2);
+};
+ 
+Date.prototype.addHours = function (h) {
+    this.setHours(this.getHours() + h);
+};
+
+/************************** Functional Methods Related to Geo-processing ***********************/ 
 
 /* Haversine formula for calculating distance between two lat/lon pairs. Adapted from: 
 http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
@@ -39,33 +80,10 @@ var haversine = function(coords1, coords2) {
     return d; 
 }
 
-// Format a number for display
-Number.prototype.readable = function(){
-    return this.toFixed(2);
-};
-
-function hasProps(obj) {
-    var argsLen = arguments.length; 
-    if (typeof obj !== 'object') return false; 
-    if (argsLen <= 1) return false; 
-
-    for (var i = 1, l = argsLen; i < l; i++)
-        if (!obj.hasOwnProperty(arguments[i])) return false; 
-
-    return true; 
-}
-
-Array.prototype.last = function () {
-    return this[this.length - 1] || false; 
-};
-    
-Date.prototype.addHours = function (h) {
-    this.setHours(this.getHours() + h);
-};
 
 new Zepto(function ($) {
     "use strict";
-    
+
     /************************** Universal Interface Elements ***********************/ 
     
     // Wrapper containing stick man and streaking status text
@@ -124,52 +142,10 @@ new Zepto(function ($) {
             get: get
         };
     })();
-    
+
     /************************** Streaking-specific logic ***********************/ 
     
     var Streak = (function(){
-
-        function getDist(){
-
-            // For efficiency, we will calculate the longest single streak while calculating the total streaking distance
-            var singleIndex = 0, 
-            singleRecord = 0; 
-
-            var dist = Storage.get('checkins').reduce(function(totalMiles, thisCheckIn, index, allCheckIns){
-                var nextCheckIn = allCheckIns[index + 1] || false;
-
-                // If there's no next check-in, there's no distance to calculate.
-                if (typeof nextCheckIn !== 'object')
-                    return totalMiles + 0;  
-
-                // To be considered part of streak, a check-in must occur soon after the previous one.
-                if (Checkin.secondsDiff(nextCheckIn, thisCheckIn) > Checkin.countdownlimit) {
-
-                    // Too much time passed between check-ins; we have to break the streak. But if the single streak
-                    // that we're keeping track of is greater than the previously recorded one, let's make this one the reigning champ.
-                    if (singleIndex > singleRecord)
-                        singleRecord = singleIndex; 
-
-                    singleIndex = 0; 
-
-                    // The check-ins are spaced out too much to be considered part of a streak
-                    return totalMiles + 0; 
-                }
-
-                var distance = Checkin.distance(thisCheckIn, nextCheckIn);
-                singleIndex+= distance; 
-
-                // Return the total miles recorded plus the distance between the two check-ins currently being processed
-               return totalMiles + Checkin.distance(thisCheckIn, nextCheckIn); 
-            }, 0);
-
-            if (singleIndex > singleRecord) singleRecord = singleIndex; 
-
-            return {
-                total_streak: dist, 
-                max_single_streak: singleRecord
-            };
-        }
 
         function secondsSinceLastCheckin() {
             var checkins = Storage.get('checkins');
@@ -191,7 +167,6 @@ new Zepto(function ($) {
         
         return {
             secondsSinceLastCheckin: secondsSinceLastCheckin,
-            getDist: getDist,
             isActive: isActive
         };
     })(); 
@@ -218,7 +193,6 @@ new Zepto(function ($) {
             var result = new Date(checkin1.date).getTime() - new Date(checkin2.date).getTime(); 
             return result; 
         }
-
 
         function distance(checkin1, checkin2) {
             var coords1 = [checkin1.lat, checkin1.lon], 
@@ -248,7 +222,6 @@ new Zepto(function ($) {
                 }, Storage.get('checkins').last());
 
                 // Make sure user has traveled far enough
- 
                 if (distance < travelMin) {
                     Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.", 5000);
                     Notices.add("Tap to Check In!", 3000); 
@@ -317,8 +290,6 @@ new Zepto(function ($) {
             geolocate: geolocate
         }
     })(); 
-
-
 
     var Notices = (function(){
 
@@ -404,7 +375,6 @@ new Zepto(function ($) {
         }
 
         function processQueue() {
-
             // if there is an object in current, increase its age
             if (current && current.hasOwnProperty('age')) { 
                 current.age+= processInterval;
@@ -441,6 +411,19 @@ new Zepto(function ($) {
         };
     })();
 
+
+    // Whether or not a check-in occurred soon after the check-in that preceeds it. 
+    var checkinTimeClose = function(checkin1, checkin2) {
+        return (Checkin.secondsDiff(checkin1, checkin2) <= Checkin.countdownLimit); 
+    };
+
+    // Miles between two check-ins
+    var measureCheckinDistance = function(base, checkin, index, array) {
+        var distance = (array[index+1]) ? Checkin.distance(checkin, array[index+1]) : 0; 
+        return base + distance; 
+    };
+
+
     var Player = function (){
     
         var display = $("#stick-man-dialogue"), 
@@ -455,10 +438,9 @@ new Zepto(function ($) {
             var geo = Storage.get('checkins'); 
             if (typeof geo == 'object') {
 
-                var distances = Streak.getDist();
+                var distance = Storage.get('checkins').filter(checkinTimeClose).reduce(measureCheckinDistance, 0);
                 stats.checkins = geo.length; 
-                stats.total_streak = distances.total_streak.toFixed(1);
-                stats.max_single_streak = distances.max_single_streak.toFixed(1); 
+                stats.total_streak = distance.toFixed(1);
             }
             return stats; 
         }
