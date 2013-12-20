@@ -10,7 +10,6 @@
     <!-- Custom fonts --> 
     <link href="http://fonts.googleapis.com/css?family=Simonetta:400" rel="stylesheet" type="text/css">
 
-    <!-- Simple responsive grid --> 
     <link rel="stylesheet" href="css/main.css" type="text/css">
 
     <!-- jQuery without all the blubber --> 
@@ -22,14 +21,14 @@
 </head>
 <body>
 
-<div class="page">
+<header class="row">
+    <div class="header col logo-bg">
+        <span class="sprite" id="logo"></span>
+        <div class="align-center" id="timer"></div>
+    </div>
+</header>
 
-    <header class="row">
-        <div class="header col logo-bg">
-            <span class="sprite" id="logo"></span>
-            <div class="align-center" id="timer"></div>
-        </div>
-    </header>
+<div class="page">
 
     <section class="row" id="streak-actions">
         <div class="span_2 col">
@@ -62,7 +61,7 @@
             <h2 class="span_6 col"> Trip Ideas </h2>
         </div>
 
-        <div class="row"> 
+        <div class="row trip-idea"> 
             <div class="span_2 col">
                    <a href="http://en.wikipedia.org/wiki/Mount_Mansfield" target="_blank">
                         <div class="icon icon1"></div>
@@ -82,7 +81,7 @@
 
         <br/>
 
-        <div class="row"> 
+        <div class="row trip-idea"> 
             <div class="span_2 col">
                    <a href="http://www.newsday.com/travel/6-caves-to-visit-in-the-northeast-1.3059243" target="_blank">
                         <div class="icon icon2"></div>
