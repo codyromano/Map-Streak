@@ -186,7 +186,7 @@ new Zepto(function ($) {
         
         loc.status = loc.NOT_REQUESTED; // default
 
-        var countdownLimit = 5400, // seconds in 90 minutes
+        var countdownLimit = 3600, // seconds in an hour
         travelMin = .25; // minimum distance users must travel before checking in
 
         function secondsDiff(checkin1, checkin2) {
