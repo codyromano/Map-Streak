@@ -80,7 +80,6 @@ var haversine = function(coords1, coords2) {
     return d; 
 }
 
-
 new Zepto(function ($) {
     "use strict";
 
@@ -92,7 +91,67 @@ new Zepto(function ($) {
     // Where important game messages are displayed
     display = $("#stick-man-dialogue"),
 
-    countdownDisplay = $("#timer"); 
+    // Game timer
+    countdownDisplay = $("#timer"),
+
+    // Phone number invite form (for desktop only)
+    inviteForm = $('#invite');
+
+
+    var processInvite = (function(){
+        var phone = $('#phone'), 
+        carrier = $('#carrier'),
+        submitBtn = $('#submitInvite'), 
+        errors = 0, 
+
+        // Front-end rate limit (there's one on the server-side too ;))
+        feRateLimit_tries = 0, 
+        feRateLimit_triesAllowed = 10; 
+
+        function showFormError(fields, msg) {
+            errors+=1;  
+            fields.forEach(function(field) {
+                field.addClass('hasError'); 
+            });
+        }
+
+        function resetForm() {
+            errors = 0; 
+            phone.removeClass('hasError'); carrier.removeClass('hasError'); 
+        }
+
+        function rateLimitExceeded() {
+            if (feRateLimit_tries < feRateLimit_triesAllowed) {
+                ++feRateLimit_tries; 
+                return false; 
+            }
+            return true; 
+        }
+
+        function trySend(successCallback, failCallback) {
+            // Disable form elements
+            submitBtn.attr('disabled', true).attr('value','Processing...').css('background','#555');
+            phone.attr('disabled', true); 
+            carrier.attr('disabled', true);
+            // Send carrier and phone in AJAX request
+        }
+
+        return function() {
+
+            resetForm(); 
+
+            // Basic validation
+            if (phone.val().length === 0) showFormError([phone]); 
+            if (carrier.val().length === 0) showFormError([carrier]); 
+            if (parseInt(phone.val()) <=0 || phone.val().length !== 10)
+                showFormError([phone]); 
+
+            if (errors === 0 && !rateLimitExceeded()) {
+                trySend(); 
+            }
+
+        };
+    })(); 
 
     /************************** Abstraction for Local Storage ***********************/ 
 
@@ -548,6 +607,8 @@ new Zepto(function ($) {
         } else {
             Notices.add("Tap to Streak!", 0);
         } 
+
+        inviteForm.submit(processInvite); 
     })();
 
 });
