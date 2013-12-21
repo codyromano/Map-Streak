@@ -14,8 +14,11 @@ div {
  .align-center{
     text-align:center;
  }
- .show-if-desktop{
+ .show-if-desktop, .hidden{
     display:none;
+ }
+ .visible {
+    display:block;
  }
 
  a{
@@ -316,8 +319,7 @@ footer a{
 }
 
 footer div.row {
-
-    padding-bottom:3rem; 
+    padding-bottom:1rem; 
     border-bottom:none;
 }
 
@@ -460,7 +462,11 @@ input:hover, input:focus, select:hover, select:focus {
         border:solid red 0.15rem;
         border-radius:5px; 
     }
-  
+
+#inviteSentNotice h3{
+    font-size:2rem;
+    padding:1rem 0rem;
+} 
 .submit input {  
     background: #086CA2;
     width: auto;  
@@ -470,3 +476,7 @@ input:hover, input:focus, select:hover, select:focus {
     -moz-border-radius: 5px;  
     -webkit-border-radius: 5px;  
     }  
+
+.submit input.processing {
+    background:#555;
+}

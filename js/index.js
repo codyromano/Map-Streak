@@ -102,11 +102,7 @@ new Zepto(function ($) {
         var phone = $('#phone'), 
         carrier = $('#carrier'),
         submitBtn = $('#submitInvite'), 
-        errors = 0, 
-
-        // Front-end rate limit (there's one on the server-side too ;))
-        feRateLimit_tries = 0, 
-        feRateLimit_triesAllowed = 10; 
+        errors = 0;
 
         function showFormError(fields, msg) {
             errors+=1;  
@@ -117,23 +113,47 @@ new Zepto(function ($) {
 
         function resetForm() {
             errors = 0; 
-            phone.removeClass('hasError'); carrier.removeClass('hasError'); 
+            phone.removeClass('hasError'); 
+            carrier.removeClass('hasError'); 
         }
 
-        function rateLimitExceeded() {
-            if (feRateLimit_tries < feRateLimit_triesAllowed) {
-                ++feRateLimit_tries; 
-                return false; 
+        function inviteSent(serverResp) {
+            console.log(serverResp); 
+
+            var result = JSON.parse(serverResp);
+
+            if (result && 'code' in result) {
+                if (result.code === 1) {
+                    inviteForm.addClass('hidden'); 
+                    $('#inviteSentNotice').removeClass('hidden').addClass('visible');
+
+                } else if (result.code !== -4) { // issue an alert for all exceptions except if rate limit exceeded
+                    alert('Whoops...my server was taking a nap when you called it. Please try again.'); 
+                    window.location = 'index.html';
+                }
+                console.error('Error (',result.code,'): ',result.message);
             }
-            return true; 
         }
 
-        function trySend(successCallback, failCallback) {
-            // Disable form elements
-            submitBtn.attr('disabled', true).attr('value','Processing...').css('background','#555');
-            phone.attr('disabled', true); 
-            carrier.attr('disabled', true);
-            // Send carrier and phone in AJAX request
+        function inviteFailed() {
+            console.error('invite failed');
+        }
+
+        function trySend(callback, errback) {
+            // Disable all form elements
+            [submitBtn, phone, carrier].forEach(function(field) {
+                field.attr('disabled', true);
+            });
+
+            $.ajax({
+              type: 'POST',
+              url: 'getInvited.php',
+              data: {phone: phone.val(), carrier: carrier.val()},
+              success: callback, 
+              error: errback
+            });
+
+            submitBtn.attr('value','Processing...').addClass('processing'); 
         }
 
         return function() {
@@ -146,10 +166,7 @@ new Zepto(function ($) {
             if (parseInt(phone.val()) <=0 || phone.val().length !== 10)
                 showFormError([phone]); 
 
-            if (errors === 0 && !rateLimitExceeded()) {
-                trySend(); 
-            }
-
+            if (errors === 0) trySend(inviteSent, inviteFailed); 
         };
     })(); 
 

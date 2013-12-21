@@ -123,7 +123,11 @@
 
             </div>
 
-            <form class="form" id="invite" action="#invite">
+            <div class="hidden span_6 col" id="inviteSentNotice">
+                <h3> Invite sent! Please check your mobile device. </h3>
+            </div>
+
+            <form class="form" id="invite" method="post" action="javascript:;">
                 <div class="span_2 col">
                         <input type="text" id="phone" maxlength="10" class="phone" placeholder="Mobile number*"/>
                 </div>
@@ -132,6 +136,8 @@
                     <select id="carrier"> 
                         <option value=""> Pick Carrier </option>
                         <option value="att"> AT&T </option>
+                        <option value="sprint"> Sprint </option>
+                        <option value="tmobile"> T Mobile </option>
                         <option value="verizon"> Verizon </option>
                     </select>
                 </div>
