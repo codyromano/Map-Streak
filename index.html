@@ -28,9 +28,18 @@
     </div>
 </header>
 
+<div id="desktop-featured" class="show-if-desktop">
+    <img src="images/full/desktop_featured.jpg"/>
+</div>
+
+<div id="desktop-tagline" class="show-if-desktop">
+    <h1> Encouraging rapid, spontaneous travel. </h1> 
+</div>
+
 <div class="page">
 
-    <section class="row" id="streak-actions">
+    <section class="row hide-for-desktop" id="streak-actions">
+
         <div class="span_2 col">
             <div class="stick-waiting sprite" id="stick-man"></div> 
         </div>
@@ -39,7 +48,7 @@
         </div>
     </section>
 
-    <section class="row" id="playerStats">
+    <section class="row hide-for-desktop" id="playerStats">
         <div class="row">
             <h2 class="span_6 col"> Your Achievements </h2>
         </div>
@@ -79,8 +88,6 @@
             </div>
         </div>
 
-        <br/>
-
         <div class="row trip-idea"> 
             <div class="span_2 col">
                    <a href="http://www.newsday.com/travel/6-caves-to-visit-in-the-northeast-1.3059243" target="_blank">
@@ -95,15 +102,56 @@
             </div>
         </div>
     </section>
+    <section id="about" class="show-if-desktop">
 
-   <footer> 
-        <div class="row col span_6">
-            <a href="http://www.codyromano.com/" class="span_2 col"> Credits </a>
-            <a href="javascript:alert('coming soon');" class="span_2 col"> Backstory </a>
-            <a href="http://www.codyromano.com/contact/" class="span_2 col"> Feedback </a>
+        <div class="row"> 
+            <h2 class="span_6 col"> How It Works </h2>
         </div>
-   </footer>
+
+        <div class="row trip-idea"> 
+
+
+            <div class="span_6 col"> 
+
+                <p> <strong> MapStreak is a free GPS-based game that you can play 
+                using your phone's web browser. </strong> After you share your initial
+                location, I'll challenge you to travel
+                somewhere new in less than 60 minutes. Keep traveling and compete with friends to see
+                who can "streak" the farthest! </p>
+
+            </div>
+
+            <form class="form">
+                <div class="span_4 col">
+                <p class="name">
+                    <input type="text" name="phone" placeholder="Your cell number*"/>
+                </p>
+                </div>
+
+                <div class="span_2 col">
+                <p class="submit">
+                    <input type="submit" value="Send Invite" />
+                </p>
+                </div>
+            </form>
+
+            <small><strong>Privacy: </strong> 
+            I will only contact you once, to send you the invite. I will never 
+            keep a record of your phone number or share it with others. The same
+            goes for any location data that you choose to provide.
+            </small>
+
+        </div>
+    </section>
 </div>
+
+<footer> 
+    <div class="row col span_6">
+        <a href="http://www.codyromano.com/" class="span_2 col"> Credits </a>
+        <a href="javascript:alert('coming soon');" class="span_2 col"> Backstory </a>
+        <a href="http://www.codyromano.com/contact/" class="span_2 col"> Feedback </a>
+    </div>
+</footer>
 
 </body>
 </html>
