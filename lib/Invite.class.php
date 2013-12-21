@@ -79,9 +79,12 @@ class Invite {
 
 		if ($this->rateLimitExceeded()) {
 			throw new Exception('', self::ERRNUM_RATE_LIMIT); 
-		} else {
-			$this->send($phone, $carrier); 
 		}
+
+		if ($this->send($phone, $carrier)) {
+			return true;
+		}
+		return false;
 	}
 }
 ?>

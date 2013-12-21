@@ -128,7 +128,7 @@ new Zepto(function ($) {
                     $('#inviteSentNotice').removeClass('hidden').addClass('visible');
 
                 } else if (result.code !== -4) { // issue an alert for all exceptions except if rate limit exceeded
-                    alert('Whoops...my server was taking a nap when you called it. Please try again.'); 
+                    alert('Whoops...my server was taking a nap when you called it. Please try again. (Error code '+result.code+')'); 
                     window.location = 'index.html';
                 }
                 console.error('Error (',result.code,'): ',result.message);
