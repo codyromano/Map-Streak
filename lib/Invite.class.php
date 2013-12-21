@@ -65,7 +65,12 @@ class Invite {
 	private function send($phone, $carrier) {
 		$to = self::getMobileEmail($phone, $carrier);
 		$message = "You're invited to MapStreak! www.mapstreak.com/?invite";
-		return (mail($to, '', $message));  
+		mail($to, '', $message);
+
+		/** 
+		* @todo Determine if the mail() function actually succeeded...
+		*/ 
+		return true; 
 	}
 
 	public function trySend($phone, $carrier) {
