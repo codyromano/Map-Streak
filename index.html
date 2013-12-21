@@ -21,6 +21,8 @@
 </head>
 <body>
 
+<a href="https://github.com/codyromano/Map-Streak/tree/develop" id="github"><img style="z-index:1;position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
 <header class="row">
     <div class="header col logo-bg">
         <span class="sprite" id="logo"></span>
@@ -121,25 +123,33 @@
 
             </div>
 
-            <form class="form">
-                <div class="span_4 col">
-                <p class="name">
-                    <input type="text" name="phone" placeholder="Your cell number*"/>
-                </p>
+            <form class="form" id="invite" action="#invite">
+                <div class="span_2 col">
+                        <input type="text" id="phone" maxlength="10" class="phone" placeholder="Mobile number*"/>
                 </div>
 
                 <div class="span_2 col">
-                <p class="submit">
-                    <input type="submit" value="Send Invite" />
-                </p>
+                    <select id="carrier"> 
+                        <option value=""> Pick Carrier </option>
+                        <option value="att"> AT&T </option>
+                        <option value="verizon"> Verizon </option>
+                    </select>
+                </div>
+
+                <div class="span_2 col submit">
+                        <input type="submit" id="submitInvite" value="Get Invited" />
                 </div>
             </form>
+
+            <div class="span_6 col">
 
             <small><strong>Privacy: </strong> 
             I will only contact you once, to send you the invite. I will never 
             keep a record of your phone number or share it with others. The same
             goes for any location data that you choose to provide.
             </small>
+
+            </div>
 
         </div>
     </section>
