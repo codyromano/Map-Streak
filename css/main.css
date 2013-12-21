@@ -1,9 +1,8 @@
 /* 
 Color scheme: https://www.dropbox.com/s/af2zs0n0hycdnma/Screenshot%202013-12-07%2020.00.23.png
-
 */ 
 
-/************************ Gridpak (http://gridpak.com) **************/ 
+/************************ Loosely based on Gridpak (http://gridpak.com) **************/ 
 
 body,
 html,
@@ -15,16 +14,14 @@ div {
  .align-center{
     text-align:center;
  }
+ .show-if-desktop{
+    display:none;
+ }
 
  a{
     color:#086CA2;
  }
  
-/*
-Page is our center aligned 95% width container. We have set it's 'position' as relative
-so that the Gridpak overlay will appear in the correct position. We have also updated
-the gridpak.js file to use '.page' as it's container.
-*/
 .page {
      margin: 0 auto;
      max-width: 95%;
@@ -90,22 +87,6 @@ the gridpak.js file to use '.page' as it's container.
         }
     }
 
-    /* 2. 6 Column Grid 320px - 919px 
-    ----------------------------------------------------------------------------- 
-    
-    Span 1: 15.0%
-    Span 2: 32.0%
-    Span 3: 49.0%
-    Span 4: 66.0%
-    Span 5: 83.0%
-    Span 6: 1000%
-    
-    ----------------------------------------------------------------------------- */
-     /* Temporary: until I configure responsive layout for desktop */ 
-
-     
-
-    /* @media screen and (min-width: 320px) and (max-width: 919px) { */ 
     @media screen and (min-width: 320px) {
 
         
@@ -151,102 +132,7 @@ the gridpak.js file to use '.page' as it's container.
         }
     }
 
-    @media screen and (min-width: 800px) {
-
- body{
-    background-color:#64AAD0;
- }
-        .trip-idea{
-            display:block;
-            float:left;
-            width:50%; 
-        }
-        .trip-idea .span_2, .trip-idea .span_4{
-            display:block;
-            width:100%; 
-        }
-    }
-
-
-    /* 3. 12 Column Grid 920px - Infinity 
-    ----------------------------------------------------------------------------- 
-    
-    Span 1: 8.33333333333%
-    Span 2: 16.6666666667%
-    Span 3: 25.0%
-    Span 4: 33.3333333333%
-    Span 5: 41.6666666667%
-    Span 6: 50.0%
-    Span 7: 58.3333333333%
-    Span 8: 66.6666666667%
-    Span 9: 75.0%
-    Span 10: 83.3333333333%
-    Span 11: 91.6666666667%
-    Span 12: 100%
-    
-    ----------------------------------------------------------------------------- */
-    
-    /*
-    @media screen and (min-width: 920px) {
-        
-        .row {
-            margin-left:-12px;
-        }
-        .col {
-            border-left-width:12px;
-        	padding:0 12px;
-        }
-        
-        .span_1 {
-            width:8.33333333333%;
-        }
-        .span_2 {
-            width:16.6666666667%;
-        }
-        .span_3,
-        .navigation,
-        .related_content {
-            width:25.0%;
-            height: 400px;
-        }
-        .span_4,
-        .media_block {
-            width:33.3333333333%;
-            height: 200px;
-        }
-        .span_5 {
-            width:41.6666666667%;
-        }
-        .span_6,
-        .main_content {
-            width:50.0%;
-            height: 400px;
-        }
-        .span_7 {
-            width:58.3333333333%;
-        }
-        .span_8,  {
-            width:66.6666666667%;
-        }
-        .span_9 {
-            width:75.0%;
-        }
-        .span_10 {
-            width:83.3333333333%;
-        }
-        .span_11 {
-            width:91.6666666667%;
-        }
-        .span_12,
-        .header,
-        .footer {
-            width:100%;
-            height: 100px;
-            margin-left:0;
-        }
-    }
-    */
-
+   
 
 /************************ /Gridpak **************/ 
 
@@ -295,20 +181,13 @@ p{
     background-position:0px 0px;
 }
 
-/* Footer */ 
-
-footer a{
-    color:#fff;
-    font-size:1.25rem;
-}
-
 /* Header and Stick Man */ 
 
 #logo{
     display:block;
     height:23px;
     width:150px;
-    /* Temporary */ 
+
     position:relative;
     top:1.5rem;
     font-weight:bold;
@@ -344,13 +223,10 @@ footer a{
     font-size:3.3rem;
 }
 
-#stick-man-dialogue.fs-medium{
+#stick-man-dialogue.fs-medium, #stick-man-dialogue.streaking{
     font-size:2.5rem;
 }
 
-#stick-man-dialogue.streaking{
-    font-size:2.5rem;
-}
 #stick-man-dialogue.fs-small{
     font-size:150%; 
 }
@@ -385,6 +261,7 @@ footer a{
 }
 
 .icon1{
+    width:100%;
     height:7rem;
     background:url(../images/thumb/stowe_resort.jpg) no-repeat;
     background-size:auto 100%;
@@ -419,4 +296,161 @@ section h2:first-child, footer div.row{
     color:#fff;
 }
 
+/* Footer */ 
+
+
+footer {
+    width:100%;
+    position:relative;
+    top:1rem;
+}
+
+footer a{
+    margin-top:0.5rem;
+    color:#fff;
+    font-size:1.25rem;
+    text-align:center;
+}
+
+footer div.row {
+
+    padding-bottom:3rem; 
+    border-bottom:none;
+}
+
 /****************************** /Structure & Basic Layout **************************/ 
+
+ @media screen and (min-width: 800px) {
+
+        #desktop-featured {
+            width:100%;
+            max-height:450px;
+            overflow-y:hidden;
+            position:relative;
+            top:-1rem; 
+            border-bottom:solid #64AAD0 .25rem;
+        }
+
+        #desktop-featured img {
+            width:100%;
+        }
+
+        #desktop-tagline {
+            font-size:1.5rem;
+            text-align:center;
+            padding-bottom:0.5rem;
+            padding:1rem 0rem;
+            width:100%;
+        }
+
+        header {
+            height:85px;
+        }
+
+        section h2:first-child {
+            width:95%;
+        }
+        section#about h2:first-child {
+            width:100%;
+        }
+
+        #about, #tripIdeas {
+            width:50%;
+        }
+        #stick-man{
+        width:85px;
+        background-size:509px 307px;
+        }   
+
+        .hide-for-desktop {
+            display:none; 
+        }
+        .show-if-desktop {
+            display:inline-block;
+        }
+
+
+        /*
+        #logo{
+    display:block;
+    height:23px;
+    width:150px;
+
+    position:relative;
+    top:1.5rem;
+    font-weight:bold;
+    background-size:192px 123px;
+    background-position:0px -37px;
+}
+    */ 
+
+
+        h2 {
+                border-radius:5px;
+        }
+        body {
+            background:#fff;
+        }
+
+      
+        /*
+        .trip-idea .span_2, .trip-idea .span_4{
+            display:block;
+            width:100%; 
+        }
+        */
+    }
+
+    small {
+        color:#555;
+
+        line-height:1.5rem;
+        font-size:0.75rem;
+    }
+
+    input, textarea {   
+    font-family:Simonetta;
+
+    padding:.5rem; 
+    border: solid 1px #ccc; 
+    border-radius:5px; 
+    outline: 0;  
+    /* font: normal 13px/100% Verdana, Tahoma, sans-serif; */
+    /*width: 200px; */
+    font-size:1.3rem;
+    width:100%; 
+    background: #FFFFFF url('bg_form.png') left top repeat-x;  
+    background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));  
+    background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);  
+    box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;  
+    -moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;  
+    -webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;  
+    }  
+  
+textarea {   
+    width: 400px;  
+    max-width: 400px;  
+    height: 150px;  
+    line-height: 150%;  
+    }  
+  
+input:hover, textarea:hover,  
+input:focus, textarea:focus {   
+    border-color: #C9C9C9;   
+    -webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;  
+    }  
+  
+.form label {   
+    margin-left: 10px;   
+    color: #999999;   
+    }  
+  
+.submit input {  
+    background: #086CA2;
+    width: auto;  
+    padding: 9px 15px;   
+    border: 0;   
+    color: #FFFFFF;  
+    -moz-border-radius: 5px;  
+    -webkit-border-radius: 5px;  
+    }  
