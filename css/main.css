@@ -326,6 +326,9 @@ footer div.row {
 /****************************** /Structure & Basic Layout **************************/ 
 
  @media screen and (min-width: 800px) {
+        #timer {
+            display:none;
+        }
         #github {
             display:inline;
         }

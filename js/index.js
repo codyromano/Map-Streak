@@ -257,7 +257,8 @@ new Zepto(function ($) {
             UNAVAILABLE: 3, 
             WAITING: 4,
             NOT_REQUESTED: 5,
-            status: null
+            status: null,
+            accuracyReq: 20 // accuracy requirement in meters (lower is stricter)
         };
         
         loc.status = loc.NOT_REQUESTED; // default
@@ -289,6 +290,19 @@ new Zepto(function ($) {
 
             loc.status = loc.AVAILABLE;
 
+            console.log(pos.coords.accuracy);
+
+            if (pos.coords.accuracy > loc.accuracyReq) {
+                var strength = 100 - Math.round(pos.coords.accuracy), 
+                strengthReq = 100 - loc.accuracyReq; // strength required
+
+                if (strength < 0) strength = 0; 
+
+                Notices.add("Your GPS is too weak ("+strength+"%). Please find a better cell service area.", 6000);
+                Notices.add("Tap to Check In!");
+                return false; 
+            }
+
             if (Streak.isActive()) {
 
                 // Get the distance between this check-in & last one.
@@ -299,7 +313,7 @@ new Zepto(function ($) {
 
                 // Make sure user has traveled far enough
                 if (distance < travelMin) {
-                    Notices.add("You have to travel at least "+travelMin.readable()+" miles before checking in.", 5000);
+                    Notices.add("You have to travel at least "+travelMin.readable()+" miles to check in.", 5000);
                     Notices.add("Tap to Check In!", 3000); 
                     return false; 
                 }
@@ -346,16 +360,20 @@ new Zepto(function ($) {
         }
 
         function geolocate(){
+            if (!Notices.queueEmpty()) {
+                console.log('No can do. A request is already processing.');
+                return false;
+            }
             loc.status = loc.WAITING; 
 
             Notices.add("Finding your location..."); 
-            navigator.geolocation.getCurrentPosition(handleLoc, locError); 
+            navigator.geolocation.getCurrentPosition(handleLoc, locError, {maximumAge:10, enableHighAccuracy: true}); 
 
             var reminder = setTimeout(function(){
                 if (loc.status === loc.WAITING) {
-                    Notices.add("Please agree to share your location."); 
+                    Notices.add("Still waiting on you to share your location..."); 
                 }
-            }, 4000); 
+            }, 5000); 
         }
 
         return {
@@ -420,7 +438,7 @@ new Zepto(function ($) {
             queue.push({
                 text: text, 
                 age: 0,
-                expires: expires || 1500, 
+                expires: expires || 1000, 
                 isExpired: function(){
                     return this.age > this.expires
                 }
@@ -461,13 +479,17 @@ new Zepto(function ($) {
             // if the object in current has expired, remove it 
             if (current && current.isExpired()) clearDisplay(); 
 
-            if (queue.length === 0 && typeof current === 'null') {
+            if (queueEmpty() && typeof current === 'null') {
                 pauseProcessing();       
             }
         }
 
         function isProcessing() {
             return (typeof interval === 'number');
+        }
+
+        function queueEmpty() {
+            return (queue.length === 0); 
         }
 
         function startProcessing() {
@@ -482,6 +504,7 @@ new Zepto(function ($) {
         startProcessing();
 
         return {
+            queueEmpty: queueEmpty,
             startCountdown: startCountdown,
             add: add
         };
