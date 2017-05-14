@@ -1,0 +1,189 @@
+<!doctype HTML>
+<html>
+<head>
+    <title> Map Streak - Go Streaking! </title>
+
+    <meta charset='utf-8'> 
+    <!-- For responsive design on mobile --> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Custom fonts --> 
+    <link href="http://fonts.googleapis.com/css?family=Simonetta:400" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="css/main.css" type="text/css">
+
+    <!-- jQuery without all the blubber --> 
+    <script src="js/zepto.min.js" type="text/javascript"></script>
+
+    <!-- All game logic -->
+    <script src="js/index.js" type="text/javascript"></script>
+
+    <meta name="keywords" content="MapStreak, Map Streak, travel, adventure, GPS, check in">
+    <meta name="description" content="Encouraging rapid, spontaneous travel among friends.">
+    <meta name="author" content="Cody Romano">
+
+    <!-- Google Analytics --> 
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-31197199-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+
+</head>
+<body>
+
+<a href="https://github.com/codyromano/Map-Streak/tree/develop" id="github"><img style="z-index:1;position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+<header class="row">
+    <div class="header col logo-bg">
+        <span class="sprite" id="logo"></span>
+        <div class="align-center" id="timer"></div>
+    </div>
+</header>
+
+<div id="desktop-featured" class="show-if-desktop">
+    <img src="images/full/desktop_featured.jpg"/>
+</div>
+
+<div id="desktop-tagline" class="show-if-desktop">
+    <h1> Encouraging rapid, spontaneous travel. </h1> 
+</div>
+
+<div class="page">
+
+    <section class="row hide-for-desktop" id="streak-actions">
+
+        <div class="span_2 col">
+            <div class="stick-waiting sprite" id="stick-man"></div> 
+        </div>
+        <div class="span_4 col">
+            <div id="stick-man-dialogue"></div>
+        </div>
+    </section>
+
+    <section class="row hide-for-desktop" id="playerStats">
+        <div class="row">
+            <h2 class="span_6 col"> Your Achievements </h2>
+        </div>
+
+        <div class="row">
+            <label class="span_4 col"> Total Check-ins </label>
+            <span class="span_2 col" id="checkins"> 0 </span>
+        </div>
+        
+        <div class="row">
+            <label class="span_4 col"> Total Miles Streaked <span onClick="alert('This number is the grand total of all your travel streaks: how far you have continuously traveled using the app.');" class="sprite info"></span></label>
+            <span class="span_2 col" id="total_streak"> 0 </span>
+        </div>
+    </section>
+
+    <section id="tripIdeas"> 
+
+        <div class="row"> 
+            <h2 class="span_6 col"> Trip Ideas </h2>
+        </div>
+
+        <div class="row trip-idea"> 
+            <div class="span_2 col">
+                   <a href="http://en.wikipedia.org/wiki/Mount_Mansfield" target="_blank">
+                        <div class="icon icon1"></div>
+                    </a>
+                    <h4> <a href='https://www.google.com/maps/preview#!q=Stowe+Mountain+Resort%2C+Mountain+Road%2C+Stowe%2C+VT&data=!4m15!2m14!1m13!1s0x4cb5917b8faaea15%3A0xa2fbbf1f063d7b3d!3m8!1m3!1d2909!2d-71.0797461!3d42.3696598!3m2!1i1140!2i758!4f13.1!4m2!3d44.529969!4d-72.781032' target='_blank'>Stowe, Vermont</a> </h4>
+            </div>
+
+            <div class="span_4 col"> 
+                <h3> Stowe Mountain Resort </h3>
+                <p> The ski and snowboarding resort is situated near
+                Mt. Mansfield, Vermont's tallest mountain. Its powdery
+                trails are collectively known as "The Great 48." 
+                Nearby restaurants offer fresh pancakes with authentic
+                Vermont maple syrup.</p>
+            </div>
+        </div>
+
+        <div class="row trip-idea"> 
+            <div class="span_2 col">
+                   <a href="http://www.newsday.com/travel/6-caves-to-visit-in-the-northeast-1.3059243" target="_blank">
+                        <div class="icon icon2"></div>
+                    </a>
+                    <h4> <a href='https://www.google.com/maps/preview#!data=!1m4!1m3!1d2991!2d-75.3312812!3d40.580821!4m12!2m11!1m10!1s0x0%3A0xed9ab3785dc02ed8!3m8!1m3!1d47157!2d-71.1129097!3d42.3783904!3m2!1i1024!2i768!4f13.1' target='_blank'>Hellertown, Pennsylvania</a> </h4>
+            </div>
+
+            <div class="span_4 col"> 
+                <h3> Lost River Caverns </h3>
+                <p> This 250,000-year-old limestone cavern has five chambers, with crystals, that can be explored on foot. Besides stalagmite and stalactite formations, you'll see mineral growths and rock formations that seem to defy gravity.</p>
+            </div>
+        </div>
+    </section>
+    <section id="about" class="show-if-desktop">
+
+        <div class="row"> 
+            <h2 class="span_6 col"> How It Works </h2>
+        </div>
+
+        <div class="row trip-idea"> 
+
+
+            <div class="span_6 col"> 
+
+                <p> <strong> MapStreak is a free GPS-based game that you can play 
+                using your phone's web browser. </strong> After you share your initial
+                location, I'll challenge you to travel
+                somewhere new in less than 60 minutes. Keep traveling and compete with friends to see
+                who can "streak" the farthest! </p>
+
+            </div>
+
+            <div class="hidden span_6 col" id="inviteSentNotice">
+                <h3> Invite sent! Please check your mobile device. </h3>
+            </div>
+
+            <form class="form" id="invite" method="post" action="javascript:;">
+                <div class="span_2 col">
+                        <input type="text" id="phone" maxlength="10" class="phone" placeholder="Mobile number*"/>
+                </div>
+
+                <div class="span_2 col">
+                    <select id="carrier"> 
+                        <option value=""> Pick Carrier </option>
+                        <option value="att"> AT&T </option>
+                        <option value="sprint"> Sprint </option>
+                        <option value="tmobile"> T Mobile </option>
+                        <option value="verizon"> Verizon </option>
+                    </select>
+                </div>
+
+                <div class="span_2 col submit">
+                        <input type="submit" id="submitInvite" value="Get Invited" />
+                </div>
+            </form>
+
+            <div class="span_6 col">
+
+            <small><strong>Privacy: </strong> 
+            I will only contact you once, to send you the invite. I will never 
+            keep a record of your phone number or share it with others. The same
+            goes for any location data that you choose to provide.
+            </small>
+
+            </div>
+
+        </div>
+    </section>
+</div>
+
+<footer> 
+    <div class="row col span_6">
+        <a href="http://www.codyromano.com/" class="span_2 col"> Credits </a>
+        <a href="http://codyromano.com/go-map-streaking-with-friends/" class="span_2 col"> Backstory </a>
+        <a href="http://www.codyromano.com/contact/" class="span_2 col"> Feedback </a>
+    </div>
+</footer>
+
+</body>
+</html>
